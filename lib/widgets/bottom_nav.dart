@@ -41,6 +41,19 @@ class _BottomNavState extends State<BottomNav> {
             color: Styles.blackColor,
           ),
         ),
+        actions: <Widget>[
+          if (_selectedIndex == 2)
+            Padding(
+                padding: EdgeInsets.only(right: 20.0),
+                child: GestureDetector(
+                  onTap: () {},
+                  child: Icon(
+                    Icons.save,
+                    color: Colors.black,
+                    size: 24,
+                  ),
+                )),
+        ],
       ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
