@@ -3,6 +3,7 @@ import 'package:clinicpro/utilities/styles.dart';
 import 'package:flutter/services.dart';
 
 import '../utilities/screen_size.dart';
+import '../widgets/stateless_button.dart';
 
 enum SingingCharacter { male, female }
 
@@ -14,10 +15,18 @@ class AddPatient extends StatefulWidget {
 }
 
 class _AddPatientState extends State<AddPatient> {
-  SingingCharacter? _gender;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  SingingCharacter? _gender = SingingCharacter.male;
   bool isDisabled = false;
   bool isAllergies = false;
+
+  String? checkEmptyValidator(value) {
+    if (value!.isEmpty)
+      return 'Missing';
+    else
+      return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,361 +37,289 @@ class _AddPatientState extends State<AddPatient> {
             children: [
               Padding(
                 padding: EdgeInsets.all(15),
-                child: Column(
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        child: Text(
-                          "First Name",
-                          style: TextStyle(
-                            fontSize: getProrataWidth(14),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    TextField(
+                child: Form(
+                  key: _formKey,
+                  autovalidateMode: AutovalidateMode.disabled,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        keyboardType: TextInputType.name,
                         decoration: InputDecoration(
-                      isDense: true,
-                      contentPadding: EdgeInsets.all(14),
-                      border: OutlineInputBorder(),
-                    )),
-                    SizedBox(height: getProrataHeight(15)),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        child: Text(
-                          "Last Name",
-                          style: TextStyle(
-                            fontSize: getProrataWidth(14),
-                            fontWeight: FontWeight.bold,
-                          ),
+                          labelText: 'First Name',
+                          isDense: true,
+                          contentPadding: EdgeInsets.all(14),
+                          border: OutlineInputBorder(),
                         ),
+                        validator: checkEmptyValidator,
                       ),
-                    ),
-                    TextField(
+                      SizedBox(height: getProrataHeight(15)),
+                      TextFormField(
+                        keyboardType: TextInputType.name,
                         decoration: InputDecoration(
-                      isDense: true,
-                      contentPadding: EdgeInsets.all(14),
-                      border: OutlineInputBorder(),
-                    )),
-                    SizedBox(height: getProrataHeight(15)),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        child: Text(
-                          "ID Number",
-                          style: TextStyle(
-                            fontSize: getProrataWidth(14),
-                            fontWeight: FontWeight.bold,
-                          ),
+                          labelText: 'Last Name',
+                          isDense: true,
+                          contentPadding: EdgeInsets.all(14),
+                          border: OutlineInputBorder(),
                         ),
+                        validator: checkEmptyValidator,
                       ),
-                    ),
-                    TextField(
+                      SizedBox(height: getProrataHeight(15)),
+                      TextFormField(
+                        keyboardType: TextInputType.text,
                         decoration: InputDecoration(
-                      isDense: true,
-                      contentPadding: EdgeInsets.all(14),
-                      border: OutlineInputBorder(),
-                    )),
-                    SizedBox(height: getProrataHeight(15)),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        child: Text(
-                          "Birth",
-                          style: TextStyle(
-                            fontSize: getProrataWidth(14),
-                            fontWeight: FontWeight.bold,
-                          ),
+                          labelText: 'ID Number',
+                          isDense: true,
+                          contentPadding: EdgeInsets.all(14),
+                          border: OutlineInputBorder(),
                         ),
+                        validator: checkEmptyValidator,
                       ),
-                    ),
-                    Row(
-                      children: <Widget>[
-                        new Flexible(
-                          child: new TextField(
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              hintText: 'YYYY',
-                              isDense: true,
-                              contentPadding: EdgeInsets.all(14),
+                      SizedBox(height: getProrataHeight(15)),
+                      Row(
+                        children: <Widget>[
+                          new Flexible(
+                            child: new TextFormField(
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                                labelText: 'YYYY',
+                                isDense: true,
+                                contentPadding: EdgeInsets.all(14),
+                              ),
+                              inputFormatters: [
+                                LengthLimitingTextInputFormatter(4),
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'[0-9]')),
+                              ],
+                              validator: checkEmptyValidator,
                             ),
-                            inputFormatters: [
-                              LengthLimitingTextInputFormatter(4),
-                              FilteringTextInputFormatter.allow(
-                                  RegExp(r'[0-9]')),
-                            ],
-                            keyboardType: TextInputType.number,
                           ),
-                        ),
-                        SizedBox(width: getProrataHeight(15)),
-                        new Flexible(
-                          child: new TextField(
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              hintText: 'MM',
-                              isDense: true,
-                              contentPadding: EdgeInsets.all(14),
+                          SizedBox(width: getProrataHeight(15)),
+                          new Flexible(
+                            child: new TextFormField(
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                                labelText: 'MM',
+                                isDense: true,
+                                contentPadding: EdgeInsets.all(14),
+                              ),
+                              inputFormatters: [
+                                LengthLimitingTextInputFormatter(2),
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'[0-9]')),
+                              ],
+                              validator: checkEmptyValidator,
                             ),
-                            inputFormatters: [
-                              LengthLimitingTextInputFormatter(2),
-                              FilteringTextInputFormatter.allow(
-                                  RegExp(r'[0-9]')),
-                            ],
-                            keyboardType: TextInputType.number,
                           ),
-                        ),
-                        SizedBox(width: getProrataHeight(15)),
-                        new Flexible(
-                          child: new TextField(
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              hintText: 'DD',
-                              isDense: true,
-                              contentPadding: EdgeInsets.all(14),
+                          SizedBox(width: getProrataHeight(15)),
+                          new Flexible(
+                            child: new TextFormField(
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                                labelText: 'DD',
+                                isDense: true,
+                                contentPadding: EdgeInsets.all(14),
+                              ),
+                              inputFormatters: [
+                                LengthLimitingTextInputFormatter(2),
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'[0-9]')),
+                              ],
+                              validator: checkEmptyValidator,
                             ),
-                            inputFormatters: [
-                              LengthLimitingTextInputFormatter(2),
-                              FilteringTextInputFormatter.allow(
-                                  RegExp(r'[0-9]')),
-                            ],
-                            keyboardType: TextInputType.number,
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: getProrataHeight(15)),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        child: Text(
-                          "Address",
-                          style: TextStyle(
-                            fontSize: getProrataWidth(14),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        ],
                       ),
-                    ),
-                    TextField(
+                      SizedBox(height: getProrataHeight(15)),
+                      TextFormField(
+                        keyboardType: TextInputType.streetAddress,
                         decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      isDense: true,
-                      contentPadding: EdgeInsets.all(14),
-                    )),
-                    SizedBox(height: getProrataHeight(15)),
-                    Row(
-                      children: <Widget>[
-                        new Flexible(
-                          child: Column(
-                            children: [
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Container(
-                                  child: Text(
-                                    "Phone",
-                                    style: TextStyle(
-                                      fontSize: getProrataWidth(14),
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                          labelText: 'Address',
+                          border: OutlineInputBorder(),
+                          isDense: true,
+                          contentPadding: EdgeInsets.all(14),
+                        ),
+                        validator: checkEmptyValidator,
+                      ),
+                      SizedBox(height: getProrataHeight(15)),
+                      Row(
+                        children: <Widget>[
+                          new Flexible(
+                            child: Column(
+                              children: [
+                                new TextFormField(
+                                  keyboardType: TextInputType.phone,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Phone',
+                                    border: OutlineInputBorder(),
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.all(14),
                                   ),
+                                  validator: checkEmptyValidator,
                                 ),
-                              ),
-                              new TextField(
-                                decoration: const InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.all(14),
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                        SizedBox(width: getProrataHeight(30)),
-                        new Flexible(
-                          child: Column(
-                            children: [
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Container(
-                                  child: Text(
-                                    "Postal Code",
-                                    style: TextStyle(
-                                      fontSize: getProrataWidth(14),
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                          SizedBox(width: getProrataHeight(30)),
+                          new Flexible(
+                            child: Column(
+                              children: [
+                                TextFormField(
+                                  keyboardType: TextInputType.text,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Postal Code',
+                                    border: OutlineInputBorder(),
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.all(14),
                                   ),
+                                  validator: checkEmptyValidator,
                                 ),
-                              ),
-                              new TextField(
-                                decoration: const InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.all(14),
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: getProrataHeight(15)),
-                    Row(
-                      children: <Widget>[
-                        new Flexible(
-                          child: Column(
-                            children: [
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Container(
-                                  child: Text(
-                                    "Height",
-                                    style: TextStyle(
-                                      fontSize: getProrataWidth(14),
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              new TextField(
-                                decoration: const InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.all(14),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(width: getProrataHeight(30)),
-                        new Flexible(
-                          child: Column(
-                            children: [
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Container(
-                                  child: Text(
-                                    "Weight",
-                                    style: TextStyle(
-                                      fontSize: getProrataWidth(14),
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              new TextField(
-                                decoration: const InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.all(14),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: getProrataHeight(15)),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        child: Text(
-                          "Diseases",
-                          style: TextStyle(
-                            fontSize: getProrataWidth(14),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        ],
                       ),
-                    ),
-                    TextField(
+                      SizedBox(height: getProrataHeight(15)),
+                      Row(
+                        children: <Widget>[
+                          new Flexible(
+                            child: Column(
+                              children: [
+                                new TextFormField(
+                                  keyboardType: TextInputType.number,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Height',
+                                    border: OutlineInputBorder(),
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.all(14),
+                                  ),
+                                  validator: checkEmptyValidator,
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: getProrataHeight(30)),
+                          new Flexible(
+                            child: Column(
+                              children: [
+                                new TextFormField(
+                                  keyboardType: TextInputType.number,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Weight',
+                                    border: OutlineInputBorder(),
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.all(14),
+                                  ),
+                                  validator: checkEmptyValidator,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: getProrataHeight(15)),
+                      TextFormField(
                         decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      isDense: true,
-                      contentPadding: EdgeInsets.all(14),
-                    )),
-                    SizedBox(height: getProrataHeight(15)),
-                    Row(
-                      children: [
-                        Flexible(
-                          child: ListTile(
-                            title: const Text('Male'),
-                            leading: Radio<SingingCharacter>(
-                              value: SingingCharacter.male,
-                              groupValue: _gender,
-                              onChanged: (SingingCharacter? value) {
-                                setState(() {
-                                  _gender = value;
-                                });
-                              },
-                            ),
-                          ),
+                          labelText: 'Diseases',
+                          border: OutlineInputBorder(),
+                          isDense: true,
+                          contentPadding: EdgeInsets.all(14),
                         ),
-                        Flexible(
-                          child: ListTile(
-                            title: const Text('Female'),
-                            leading: Radio<SingingCharacter>(
-                              value: SingingCharacter.female,
-                              groupValue: _gender,
-                              onChanged: (SingingCharacter? value) {
-                                setState(() {
-                                  _gender = value;
-                                });
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Align(
-                          child: Container(
-                            child: Text(
-                              "Disabled?",
-                              style: TextStyle(
-                                fontSize: getProrataWidth(18),
+                        validator: checkEmptyValidator,
+                      ),
+                      SizedBox(height: getProrataHeight(15)),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: ListTile(
+                              title: const Text('Male'),
+                              leading: Radio<SingingCharacter>(
+                                value: SingingCharacter.male,
+                                groupValue: _gender,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _gender = value;
+                                  });
+                                },
                               ),
                             ),
                           ),
-                        ),
-                        Spacer(),
-                        Switch(
-                          value: isDisabled,
-                          onChanged: (value) => {
-                            setState(() {
-                              isDisabled = value;
-                            })
-                          },
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Align(
-                          child: Container(
-                            child: Text(
-                              "Medical Allergies?",
-                              style: TextStyle(
-                                fontSize: getProrataWidth(18),
+                          Flexible(
+                            child: ListTile(
+                              title: const Text('Female'),
+                              leading: Radio<SingingCharacter>(
+                                value: SingingCharacter.female,
+                                groupValue: _gender,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _gender = value;
+                                  });
+                                },
                               ),
                             ),
                           ),
-                        ),
-                        Spacer(),
-                        Switch(
-                          value: isAllergies,
-                          onChanged: (value) => {
-                            setState(() {
-                              isAllergies = value;
-                            })
-                          },
-                        ),
-                      ],
-                    )
-                  ],
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Align(
+                            child: Container(
+                              child: Text(
+                                "Disabled?",
+                                style: TextStyle(
+                                  fontSize: getProrataWidth(18),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Spacer(),
+                          Switch(
+                            value: isDisabled,
+                            onChanged: (value) => {
+                              setState(() {
+                                isDisabled = value;
+                              })
+                            },
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Align(
+                            child: Container(
+                              child: Text(
+                                "Medical Allergies?",
+                                style: TextStyle(
+                                  fontSize: getProrataWidth(18),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Spacer(),
+                          Switch(
+                            value: isAllergies,
+                            onChanged: (value) => {
+                              setState(() {
+                                isAllergies = value;
+                              })
+                            },
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: getProrataHeight(15)),
+                      StatelessButton(
+                        buttonText: 'Validate',
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+//    If all data are correct then save data to out variables
+                            _formKey.currentState!.save();
+                          }
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
