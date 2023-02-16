@@ -54,4 +54,45 @@ class Patient {
     this.createdAt,
     this.updatedAt,
   );
+
+  Patient.overview(
+    this.id,
+    this.idCardNumber,
+    this.firstName,
+    this.lastName,
+    this.gender,
+    this.bedNumber,
+    this.dateOfBirth,
+    this.height,
+    this.weight,
+    this.photoUrl,
+    this.phoneNumber,
+    this.address,
+    this.postalCode,
+    this.medicalAllergies,
+    this.disabled,
+    this.medicalNotes,
+    this.doctor,
+  );
+
+  factory Patient.fromJson(Map<String, dynamic> json) {
+    return Patient.overview(
+        json['id'],
+        json['idCardNumber'],
+        json['firstName'],
+        json['lastName'],
+        json['gender'],
+        json['bedNumber'],
+        json['dateOfBirth'],
+        double.parse(json['height'].toString()),
+        double.parse(json['weight'].toString()),
+        json['photoUrl'],
+        json['phoneNumber'].toString(),
+        json['address'],
+        json['postalCode'] ?? '',
+        json['medicalAllergies'].toString(),
+        json['disabled'].toString(),
+        json['medicalNotes'] ?? '',
+        json['doctor'] ?? '');
+  }
 }
