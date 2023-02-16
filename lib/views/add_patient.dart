@@ -15,7 +15,7 @@ class AddPatient extends StatefulWidget {
 }
 
 class _AddPatientState extends State<AddPatient> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
   SingingCharacter? _gender = SingingCharacter.male;
   bool isDisabled = false;
@@ -313,7 +313,6 @@ class _AddPatientState extends State<AddPatient> {
                         buttonText: 'Validate',
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
-//    If all data are correct then save data to out variables
                             _formKey.currentState!.save();
                           }
                         },
