@@ -11,7 +11,7 @@ import '../utilities/screen_size.dart';
 import '../widgets/stateless_button.dart';
 
 Future<List<Patient>> fatchPatient(http.Client client) async {
-  String link = "https://gp5.onrender.com/patients";
+  String link = "https://rest-clinicpro.onrender.com/patients";
   var res = await http.get(Uri.parse(link));
 
   if (res.statusCode == 200) {
