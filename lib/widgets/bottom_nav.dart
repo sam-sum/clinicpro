@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:clinicpro/utilities/styles.dart';
 import 'package:clinicpro/views/overview.dart';
+import 'package:clinicpro/views/overview_demo.dart';
 import 'package:clinicpro/views/search.dart';
 import 'package:clinicpro/views/add_patient.dart';
 import 'package:clinicpro/utilities/iconly_bold.dart';
@@ -17,7 +18,8 @@ class BottomNav extends StatefulWidget {
 class _BottomNavState extends State<BottomNav> {
   int _selectedIndex = 0;
   static final List<Widget> _widgetOptions = <Widget>[
-    const Overview(),
+    //const Overview(),
+    const OverviewDemo(),
     const Search(),
     const AddPatient(),
   ];
