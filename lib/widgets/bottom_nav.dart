@@ -18,8 +18,8 @@ class BottomNav extends StatefulWidget {
 class _BottomNavState extends State<BottomNav> {
   int _selectedIndex = 0;
   static final List<Widget> _widgetOptions = <Widget>[
-    //const Overview(),
-    const OverviewDemo(),
+    const Overview(),
+    // const OverviewDemo(),
     const Search(),
     const AddPatient(),
   ];

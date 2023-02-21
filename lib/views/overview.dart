@@ -1,73 +1,80 @@
-import 'dart:convert';
-import 'dart:ui';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:http/http.dart' as http;
-
 import 'package:clinicpro/views/patient_details.dart';
 import 'package:flutter/material.dart';
 import 'package:clinicpro/utilities/styles.dart';
 import 'package:clinicpro/models/patient_model.dart';
-
+import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
+import '../providers/Patients.dart';
 import '../utilities/screen_size.dart';
 import '../widgets/stateless_button.dart';
 
-Future<List<Patient>> fetchPatient(http.Client client) async {
-  //String link = "https://rest-clinicpro.onrender.com/patients";
-  String link = "https://gp5.onrender.com/patients";
-
-  var res = await http.get(Uri.parse(link));
-
-  if (res.statusCode == 200) {
-    var data = json.decode(res.body);
-    var rest = data["data"] as List;
-    var list = rest.map<Patient>((json) => Patient.fromJson(json)).toList();
-    return list;
-  }
-  throw Exception("Fail to load patient");
-}
-
 class Overview extends StatefulWidget {
-  const Overview({super.key});
+  const Overview({Key? key}) : super(key: key);
 
   @override
   State<Overview> createState() => _OverviewState();
 }
 
 class _OverviewState extends State<Overview> {
+  var _isInit = true;
+  var _isLoading = false;
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String _pressure = '';
+  String _lowerpressure = '';
   String _oxygen = '';
   String _respiratory = '';
   String _heartbeat = '';
   List<Patient> patientList = [];
   List<Patient> filterpatientList = [];
 
+  String _oxyDrop = 'Less Than';
+  String _resDrop = 'Less Than';
+  String _heartDrop = 'Less Than';
+
+  // List of items in our dropdown menu
+  var items = [
+    'Less Than',
+    'Equal',
+    'Greater Than',
+  ];
+
   void filterList() {
     filterpatientList = [];
     patientList.forEach((element) {
       var record = element.latestRecord;
       if (record != null) {
-        bool flag = true;
-        String bloodPressure = record.bLOODPRESSURE ?? '';
-        String oxygen = record.bLOODPRESSURE ?? '';
-        String respiratory = record.bLOODPRESSURE ?? '';
-        String heartbeat = record.bLOODPRESSURE ?? '';
+        bool filterOut = false;
 
-        if (!bloodPressure.toLowerCase().contains(_pressure.toLowerCase()))
-          flag = false;
-        if (!oxygen.toLowerCase().contains(_oxygen.toLowerCase())) flag = false;
-        if (!respiratory.toLowerCase().contains(_respiratory.toLowerCase()))
-          flag = false;
-        if (!heartbeat.toLowerCase().contains(_heartbeat.toLowerCase()))
-          flag = false;
+        if (_pressure.isNotEmpty) {
+          if (record.bLOODPRESSURE!.isEmpty) {
+            filterOut = true;
+          } else {
+            int a = int.tryParse(_pressure) ?? 0;
+            int b = int.tryParse(record.bLOODPRESSURE!) ?? 0;
+            if (!(b <= a)) filterOut = true;
+          }
+        }
 
-        if (flag) filterpatientList.add(element);
+        if (_lowerpressure.isNotEmpty) {
+          if (record.bLOODPRESSURE!.isEmpty) {
+            filterOut = true;
+          } else {
+            int a = int.tryParse(_lowerpressure) ?? 0;
+            int b = int.tryParse(record.bLOODPRESSURE!) ?? 0;
+            if (!(b >= a)) filterOut = true;
+          }
+        }
+
+        if (!filterOut) filterpatientList.add(element);
       }
     });
   }
 
   bool checkFilter() {
     return !(_pressure.isEmpty &&
+        _lowerpressure.isEmpty &&
         _oxygen.isEmpty &&
         _respiratory.isEmpty &&
         _heartbeat.isEmpty);
@@ -75,186 +82,199 @@ class _OverviewState extends State<Overview> {
 
   void resetFilter() {
     _pressure = '';
+    _lowerpressure = '';
     _oxygen = '';
     _respiratory = '';
     _heartbeat = '';
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Styles.backgroundColor,
-      child: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              children: [
-                Text(
-                  'All Patient',
-                  style: TextStyle(fontSize: 18),
-                ),
-                Spacer(),
-                InkWell(
-                  onTap: () {
-                    showModalBottomSheet(
-                      context: context,
-                      //elevates modal bottom screen
-                      elevation: 20,
-                      // gives rounded corner to modal bottom screen
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                      builder: (BuildContext context) {
-                        // UDE : SizedBox instead of Container for whitespaces
-                        return FilterBottom(context);
-                      },
-                    );
-                  },
-                  child: FaIcon(FontAwesomeIcons.filter,
-                      size: 15,
-                      color: checkFilter()
-                          ? Theme.of(context).primaryColor
-                          : Theme.of(context).disabledColor),
-                )
-              ],
-            ),
-            SizedBox(
-              height: 15,
-            ),
-            Expanded(
-                child: FutureBuilder(
-              future: fetchPatient(http.Client()),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                } else if (snapshot.hasError) {
-                  return const Center(
-                    child: Text('Network Error'),
-                  );
-                } else {
-                  patientList = snapshot.data!;
-                  filterList();
+  void didChangeDependencies() {
+    if (_isInit) {
+      setState(() {
+        _isLoading = true;
+      });
+      Provider.of<Patients>(context).fetchAllPatients().then((_) {
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    }
+    _isInit = false;
+    super.didChangeDependencies();
+  }
 
-                  return ListView.builder(
-                      scrollDirection: Axis.vertical,
-                      shrinkWrap: true,
-                      itemCount: filterpatientList.length,
-                      itemBuilder: ((context, index) {
-                        var item = filterpatientList[index];
-                        return InkWell(
+  @override
+  Widget build(BuildContext context) {
+    //final patientsData = Provider.of<Patients>(context);
+    patientList = Provider.of<Patients>(context).patients;
+    filterList();
+
+    return Material(
+        color: Styles.backgroundColor,
+        child: _isLoading
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Row(
+                      children: [
+                        Text(
+                          'All Patient',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                        Spacer(),
+                        InkWell(
                           onTap: () {
-                            Navigator.pushNamed(
-                                context, PatientDetails.routeName,
-                                arguments: item);
+                            showModalBottomSheet(
+                              context: context,
+                              //elevates modal bottom screen
+                              elevation: 20,
+                              // gives rounded corner to modal bottom screen
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                              builder: (BuildContext context) {
+                                // UDE : SizedBox instead of Container for whitespaces
+                                return FilterBottom(context);
+                              },
+                            );
                           },
-                          child: Card(
-                            elevation: 4,
-                            child: Padding(
-                              padding: EdgeInsets.all(15),
-                              child: Column(
-                                children: [
-                                  Row(
+                          child: FaIcon(FontAwesomeIcons.filter,
+                              size: 15,
+                              color: checkFilter()
+                                  ? Theme.of(context).primaryColor
+                                  : Theme.of(context).disabledColor),
+                        )
+                      ],
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          itemCount: filterpatientList.length,
+                          itemBuilder: ((context, index) {
+                            var item = filterpatientList[index];
+                            return InkWell(
+                              onTap: () {
+                                Navigator.pushNamed(
+                                    context, PatientDetails.routeName,
+                                    arguments: item);
+                              },
+                              child: Card(
+                                elevation: 4,
+                                child: Padding(
+                                  padding: EdgeInsets.all(15),
+                                  child: Column(
                                     children: [
-                                      Expanded(
-                                        flex: 3,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(5.0),
-                                          child: ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(5.0),
-                                            child: Image.network(item.photoUrl!,
-                                                errorBuilder: (context,
-                                                    exception, stackTrace) {
-                                              return Container();
-                                            }),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            flex: 3,
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(5.0),
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(5.0),
+                                                child: Image.network(
+                                                    item.photoUrl!,
+                                                    errorBuilder: (context,
+                                                        exception, stackTrace) {
+                                                  return Container();
+                                                }),
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 6,
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              item.firstName! +
-                                                  ' ' +
-                                                  item.lastName!,
-                                            ),
-                                            Text(
-                                              'Gender : ' + item.gender!,
-                                            ),
-                                            Row(
-                                              mainAxisSize: MainAxisSize.min,
+                                          Expanded(
+                                            flex: 6,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
-                                                FaIcon(
-                                                  FontAwesomeIcons.addressCard,
-                                                  size: 15,
+                                                Text(
+                                                  item.firstName! +
+                                                      ' ' +
+                                                      item.lastName!,
                                                 ),
                                                 Text(
-                                                  ' #' + item.idCardNumber!,
+                                                  'Gender : ' + item.gender!,
                                                 ),
+                                                Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    FaIcon(
+                                                      FontAwesomeIcons
+                                                          .addressCard,
+                                                      size: 15,
+                                                    ),
+                                                    Text(
+                                                      ' #' + item.idCardNumber!,
+                                                    ),
+                                                  ],
+                                                )
                                               ],
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 4,
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Container(),
-                                            item.disabled == 'true'
-                                                ? FaIcon(
-                                                    FontAwesomeIcons.wheelchair,
-                                                    size: 15,
-                                                  )
-                                                : Container(),
-                                            Row(
-                                              mainAxisSize: MainAxisSize.min,
+                                            ),
+                                          ),
+                                          Expanded(
+                                            flex: 4,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
-                                                FaIcon(
-                                                  FontAwesomeIcons.bed,
-                                                  size: 15,
-                                                ),
-                                                Text(
-                                                  ' ' +
-                                                      item.bedNumber!
-                                                          .toUpperCase(),
-                                                ),
+                                                Container(),
+                                                item.disabled == 'true'
+                                                    ? FaIcon(
+                                                        FontAwesomeIcons
+                                                            .wheelchair,
+                                                        size: 15,
+                                                      )
+                                                    : Container(),
+                                                Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    FaIcon(
+                                                      FontAwesomeIcons.bed,
+                                                      size: 15,
+                                                    ),
+                                                    Text(
+                                                      ' ' +
+                                                          item.bedNumber!
+                                                              .toUpperCase(),
+                                                    ),
+                                                  ],
+                                                )
                                               ],
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 1,
-                                        child: FaIcon(
-                                          FontAwesomeIcons.ellipsisVertical,
-                                          size: 15,
-                                        ),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            flex: 1,
+                                            child: FaIcon(
+                                              FontAwesomeIcons.ellipsisVertical,
+                                              size: 15,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
-                          ),
-                        );
-                      }));
-                }
-              },
-            )),
-          ],
-        ),
-      ),
-    );
+                            );
+                          })),
+                    ),
+                  ],
+                ),
+              ));
   }
 
   Widget FilterBottom(BuildContext context) {
@@ -273,18 +293,49 @@ class _OverviewState extends State<Overview> {
               ),
               SizedBox(height: getProrataHeight(20)),
               Text('Blood Pressure'),
-              TextFormField(
-                textAlign: TextAlign.center,
-                initialValue: _pressure,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  isDense: true,
-                  contentPadding: EdgeInsets.all(10),
-                  border: OutlineInputBorder(),
-                ),
-                onSaved: (val) {
-                  _pressure = val!;
-                },
+              Row(
+                children: [
+                  Flexible(
+                    child: TextFormField(
+                      textAlign: TextAlign.center,
+                      initialValue: _pressure,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        contentPadding: EdgeInsets.all(10),
+                        border: OutlineInputBorder(),
+                      ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly
+                      ], // Only numbers can be entered
+                      onSaved: (val) {
+                        _pressure = val!;
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 10, right: 10),
+                    child: Text('/'),
+                  ),
+                  Flexible(
+                    child: TextFormField(
+                      textAlign: TextAlign.center,
+                      initialValue: _lowerpressure,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        contentPadding: EdgeInsets.all(10),
+                        border: OutlineInputBorder(),
+                      ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly
+                      ], // Only numbers can be entered
+                      onSaved: (val) {
+                        _lowerpressure = val!;
+                      },
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: getProrataHeight(10)),
               Text('Blood Oxygen Level'),
@@ -297,6 +348,9 @@ class _OverviewState extends State<Overview> {
                   contentPadding: EdgeInsets.all(10),
                   border: OutlineInputBorder(),
                 ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly
+                ], // Only numbers can be entered
                 onSaved: (val) {
                   _oxygen = val!;
                 },
@@ -312,6 +366,9 @@ class _OverviewState extends State<Overview> {
                   contentPadding: EdgeInsets.all(10),
                   border: OutlineInputBorder(),
                 ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly
+                ], // Only numbers can be entered
                 onSaved: (val) {
                   _respiratory = val!;
                 },
@@ -327,6 +384,9 @@ class _OverviewState extends State<Overview> {
                   contentPadding: EdgeInsets.all(10),
                   border: OutlineInputBorder(),
                 ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly
+                ], // Only numbers can be entered
                 onSaved: (val) {
                   _heartbeat = val!;
                 },
