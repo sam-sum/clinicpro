@@ -139,7 +139,7 @@ class Patient {
   String? gender;
   String? bedNumber;
   String? dateOfBirth;
-  int? height;
+  double? height;
   double? weight;
   String? photoUrl;
   int? phoneNumber;
@@ -193,7 +193,7 @@ class Patient {
     dateOfBirth = json['dateOfBirth'];
 //    height = json['height'];
 //   weight = json['weight'];
-    height = int.parse(json['height'].toString());
+    height = double.parse(json['height'].toString());
     weight = double.parse(json['weight'].toString());
 
     photoUrl = json['photoUrl'];
