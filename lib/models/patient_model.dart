@@ -139,7 +139,7 @@ class Patient {
   String? gender;
   String? bedNumber;
   String? dateOfBirth;
-  int? height;
+  double? height;
   double? weight;
   String? photoUrl;
   int? phoneNumber;
@@ -261,10 +261,10 @@ class LatestRecord {
       this.rESPIRATORYRATE});
 
   LatestRecord.fromJson(Map<String, dynamic> json) {
-    bLOODPRESSURE = json['BLOOD_PRESSURE'];
-    hEARTBEATRATE = json['HEARTBEAT_RATE'];
-    bLOODOXYGENLEVEL = json['BLOOD_OXYGEN_LEVEL'];
-    rESPIRATORYRATE = json['RESPIRATORY_RATE'];
+    bLOODPRESSURE = json['BLOOD_PRESSURE'] ?? '';
+    hEARTBEATRATE = json['HEARTBEAT_RATE'] ?? '';
+    bLOODOXYGENLEVEL = json['BLOOD_OXYGEN_LEVEL'] ?? '';
+    rESPIRATORYRATE = json['RESPIRATORY_RATE'] ?? '';
   }
 
   Map<String, dynamic> toJson() {
