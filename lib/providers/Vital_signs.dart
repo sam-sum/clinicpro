@@ -46,22 +46,32 @@ class VitalSigns with ChangeNotifier {
     _summary.setBloodOxygenLevel(null);
     _summary.setRespiratoryRate(null);
     _summary.setHeartBeatRate(null);
-    if (patient.latestRecord?.bLOODPRESSURE != null) {
+    if (patient.latestRecord?.bLOODPRESSURE != null &&
+        patient.latestRecord!.bLOODPRESSURE!.isNotEmpty) {
+      print("latest blood pressure: ${patient.latestRecord!.bLOODPRESSURE!}");
       final readings = await getVitalSign(
           '/patients/${patient.id}/tests/${patient.latestRecord!.bLOODPRESSURE}');
       _summary.setBloodPressure(readings);
     }
-    if (patient.latestRecord?.bLOODOXYGENLEVEL != null) {
+    if (patient.latestRecord?.bLOODOXYGENLEVEL != null &&
+        patient.latestRecord!.bLOODOXYGENLEVEL!.isNotEmpty) {
+      print(
+          "latest blood oxygen level: ${patient.latestRecord!.bLOODOXYGENLEVEL!}");
       final readings = await getVitalSign(
           '/patients/${patient.id}/tests/${patient.latestRecord!.bLOODOXYGENLEVEL}');
       _summary.setBloodOxygenLevel(readings);
     }
-    if (patient.latestRecord?.rESPIRATORYRATE != null) {
+    if (patient.latestRecord?.rESPIRATORYRATE != null &&
+        patient.latestRecord!.rESPIRATORYRATE!.isNotEmpty) {
+      print(
+          "latest respiratory rate: ${patient.latestRecord!.rESPIRATORYRATE!}");
       final readings = await getVitalSign(
           '/patients/${patient.id}/tests/${patient.latestRecord!.rESPIRATORYRATE}');
       _summary.setRespiratoryRate(readings);
     }
-    if (patient.latestRecord?.hEARTBEATRATE != null) {
+    if (patient.latestRecord?.hEARTBEATRATE != null &&
+        patient.latestRecord!.hEARTBEATRATE!.isNotEmpty) {
+      print("latest heartbeat rate: ${patient.latestRecord!.hEARTBEATRATE!}");
       final readings = await getVitalSign(
           '/patients/${patient.id}/tests/${patient.latestRecord!.hEARTBEATRATE}');
       _summary.setHeartBeatRate(readings);
@@ -86,6 +96,7 @@ class VitalSigns with ChangeNotifier {
         case 200:
           {
             final extractedData = json.decode(response.body)['data'] as dynamic;
+            //print(extractedData);
             if (extractedData != null) {
               result = VitalSign.fromJson(extractedData).readings;
             }

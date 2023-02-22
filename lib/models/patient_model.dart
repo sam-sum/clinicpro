@@ -181,7 +181,7 @@ class Patient {
 
   Patient.fromJson(Map<String, dynamic> json) {
     latestRecord = json['latestRecord'] != null
-        ? new LatestRecord.fromJson(json['latestRecord'])
+        ? LatestRecord.fromJson(json['latestRecord'])
         : null;
     sId = json['_id'];
     id = json['id'];
@@ -194,7 +194,7 @@ class Patient {
 //    height = json['height'];
 //   weight = json['weight'];
     try {
-      height = int.parse(json['height'].toString());
+      height = double.parse(json['height'].toString());
     } catch (error) {
       height = null;
     }
