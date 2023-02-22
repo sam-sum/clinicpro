@@ -18,8 +18,7 @@ class BottomNav extends StatefulWidget {
 class _BottomNavState extends State<BottomNav> {
   int _selectedIndex = 0;
   static final List<Widget> _widgetOptions = <Widget>[
-    //const Overview(),
-    const OverviewDemo(),
+    const Overview(),
     const Search(),
     const AddPatient(),
   ];
@@ -46,10 +45,10 @@ class _BottomNavState extends State<BottomNav> {
         actions: <Widget>[
           if (_selectedIndex == 2)
             Padding(
-                padding: EdgeInsets.only(right: 20.0),
+                padding: const EdgeInsets.only(right: 20.0),
                 child: GestureDetector(
                   onTap: () {},
-                  child: Icon(
+                  child: const Icon(
                     Icons.save,
                     color: Colors.black,
                     size: 24,
