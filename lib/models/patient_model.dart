@@ -193,9 +193,16 @@ class Patient {
     dateOfBirth = json['dateOfBirth'];
 //    height = json['height'];
 //   weight = json['weight'];
-    height = double.parse(json['height'].toString());
-    weight = double.parse(json['weight'].toString());
-
+    try {
+      height = int.parse(json['height'].toString());
+    } catch (error) {
+      height = null;
+    }
+    try {
+      weight = double.parse(json['weight'].toString());
+    } catch (error) {
+      weight = null;
+    }
     photoUrl = json['photoUrl'];
     phoneNumber = json['phoneNumber'];
     address = json['address'];

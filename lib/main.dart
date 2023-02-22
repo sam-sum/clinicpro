@@ -1,3 +1,4 @@
+import 'package:clinicpro/providers/Vital_signs.dart';
 import 'package:flutter/material.dart';
 import 'package:clinicpro/providers/Patients.dart';
 import 'package:clinicpro/utilities/styles.dart';
@@ -21,6 +22,9 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider.value(
           value: Patients(),
+        ),
+        ChangeNotifierProvider.value(
+          value: VitalSigns(),
         ),
       ],
       child: MaterialApp(

@@ -16,7 +16,8 @@ class Patients with ChangeNotifier {
   }
 
   Future<void> fetchAllPatients() async {
-    final url = Uri.https('rest-clinicpro.onrender.com', '/patients');
+    final url = Uri.https('gp5.onrender.com', '/patients');
+    //final url = Uri.https('rest-clinicpro.onrender.com', '/patients');
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body)['data'] as dynamic;
@@ -33,5 +34,10 @@ class Patients with ChangeNotifier {
     } catch (error) {
       rethrow;
     }
+  }
+
+  Future<void> updatePatient(String id, Patient newPatient) async {
+    await Future.delayed(const Duration(seconds: 3));
+    //throw Exception("test update error");
   }
 }
