@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:clinicpro/utilities/screen_size.dart';
 import 'package:clinicpro/utilities/styles.dart';
 import 'package:clinicpro/widgets/stateless_button.dart';
 import 'package:clinicpro/widgets/bottom_nav.dart';
+import 'package:clinicpro/assets/constants.dart' as constants;
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -15,7 +17,7 @@ class _LoginState extends State<Login> {
   GlobalKey globalKey = GlobalKey();
   final _accessCodeController = TextEditingController();
   bool _submitted = false;
-
+  String valueName = constants.ADMIN;
   String? get _errorText {
     // at any time, we can get the text from _controller.value.text
     final text = _accessCodeController.value.text;
@@ -62,15 +64,42 @@ class _LoginState extends State<Login> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: getProrataHeight(150)),
+              SizedBox(height: getProrataHeight(90)),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: getProrataWidth(50)),
                 child: Column(
                   children: [
+                    // user name input field
+                    TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Your Name',
+                        filled: true,
+                        fillColor: Styles.greyColor,
+                        border: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.circular(getProrataWidth(8)),
+                          borderSide: const BorderSide(
+                            width: 0,
+                            style: BorderStyle.none,
+                          ),
+                        ),
+                      ),
+                      onChanged: (value) {
+                        valueName = value;
+                      },
+                      onTap: () async {
+                        await Future.delayed(const Duration(milliseconds: 500));
+                        RenderObject? object =
+                            globalKey.currentContext?.findRenderObject();
+                        object?.showOnScreen();
+                      },
+                    ),
+                    SizedBox(height: getProrataHeight(20)),
                     ValueListenableBuilder(
                       valueListenable: _accessCodeController,
                       builder: (BuildContext context, TextEditingValue value,
                           Widget? child) {
+                        // password input field
                         return TextField(
                           controller: _accessCodeController,
                           decoration: InputDecoration(
@@ -87,6 +116,9 @@ class _LoginState extends State<Login> {
                               ),
                             ),
                           ),
+                          obscureText: true,
+                          enableSuggestions: false,
+                          autocorrect: false,
                           onTap: () async {
                             await Future.delayed(
                                 const Duration(milliseconds: 500));
@@ -99,11 +131,18 @@ class _LoginState extends State<Login> {
                     ),
                     StatelessButton(
                       buttonText: 'Continue',
-                      onPressed: () {
+                      onPressed: () async {
                         setState(() => _submitted = true);
                         if (_errorText == null) {
-                          Navigator.pushNamedAndRemoveUntil(
-                              context, BottomNav.routeName, (_) => false);
+                          valueName =
+                              (valueName.isEmpty) ? constants.ADMIN : valueName;
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          prefs.setString(constants.LOGIN_USER, valueName);
+                          if (context.mounted) {
+                            Navigator.pushNamedAndRemoveUntil(
+                                context, BottomNav.routeName, (_) => false);
+                          }
                         }
                       },
                     ),
