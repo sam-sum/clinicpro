@@ -7,6 +7,7 @@ import '../models/vital_sign_model.dart';
 import '../models/vital_sign_latest_model.dart';
 
 class VitalSigns with ChangeNotifier {
+  String _currentPatientId = '';
   final VitalSignLatest _summary = VitalSignLatest();
   List<VitalSign> _allVitalSignsForPatient = [];
 
@@ -14,28 +15,112 @@ class VitalSigns with ChangeNotifier {
     return _summary;
   }
 
-  List<VitalSign> get allVitalSignsForPatient {
-    return [..._allVitalSignsForPatient];
+  List<VitalSign> getAllVitalSignsForPatient(String id) {
+    if (_currentPatientId == id) {
+      return [..._allVitalSignsForPatient];
+    } else {
+      return <VitalSign>[];
+    }
+  }
+
+  List<VitalSign> getBloodPressureRecordsForPatient(String id) {
+    if (_currentPatientId == id) {
+      List<VitalSign> shortList = _allVitalSignsForPatient
+          .where((record) =>
+              record.category == 'BLOOD_PRESSURE' && record.isValid == true)
+          .toList();
+      //sort in date descending order
+      shortList.sort((a, b) {
+        return DateTime.parse(b.createdAt ?? '1971-01-01')
+            .compareTo(DateTime.parse(a.createdAt ?? '1971-01-01'));
+      });
+      return shortList;
+    } else {
+      return <VitalSign>[];
+    }
+  }
+
+  List<VitalSign> getBloodOxygenLevelRecordsForPatient(String id) {
+    if (_currentPatientId == id) {
+      List<VitalSign> shortList = _allVitalSignsForPatient
+          .where((record) =>
+              record.category == 'BLOOD_OXYGEN_LEVEL' && record.isValid == true)
+          .toList();
+      //sort in date descending order
+      shortList.sort((a, b) {
+        return DateTime.parse(b.createdAt ?? '1971-01-01')
+            .compareTo(DateTime.parse(a.createdAt ?? '1971-01-01'));
+      });
+      return shortList;
+    } else {
+      return <VitalSign>[];
+    }
+  }
+
+  List<VitalSign> getRespiratoryRateRecordsForPatient(String id) {
+    if (_currentPatientId == id) {
+      List<VitalSign> shortList = _allVitalSignsForPatient
+          .where((record) =>
+              record.category == 'RESPIRATORY_RATE' && record.isValid == true)
+          .toList();
+      //sort in date descending order
+      shortList.sort((a, b) {
+        return DateTime.parse(b.createdAt ?? '1971-01-01')
+            .compareTo(DateTime.parse(a.createdAt ?? '1971-01-01'));
+      });
+      return shortList;
+    } else {
+      return <VitalSign>[];
+    }
+  }
+
+  List<VitalSign> getHeatBeatRateRecordsForPatient(String id) {
+    if (_currentPatientId == id) {
+      List<VitalSign> shortList = _allVitalSignsForPatient
+          .where((record) =>
+              record.category == 'HEARTBEAT_RATE' && record.isValid == true)
+          .toList();
+      //sort in date descending order
+      shortList.sort((a, b) {
+        return DateTime.parse(b.createdAt ?? '1971-01-01')
+            .compareTo(DateTime.parse(a.createdAt ?? '1971-01-01'));
+      });
+      return shortList;
+    } else {
+      return <VitalSign>[];
+    }
   }
 
   Future<void> fetchAllVitalSignsForPatient(String patientId) async {
+    _currentPatientId = '';
     _allVitalSignsForPatient = [];
     //final url = Uri.https('rest-clinicpro.onrender.com', '/patients');
     final url = Uri.https('gp5.onrender.com', '/patients/$patientId/tests');
     try {
       final response = await http.get(url);
-      final extractedData = json.decode(response.body)['data'] as dynamic;
-      //print(extractedData);
-      final List<VitalSign> loadedVitalSigns = [];
-      if (extractedData != null) {
-        extractedData.forEach((vitalSignData) {
-          //print(patientData);
-          loadedVitalSigns.add(VitalSign.fromJson(vitalSignData));
-        });
+      switch (response.statusCode) {
+        case 200:
+          {
+            final extractedData = json.decode(response.body)['data'] as dynamic;
+            //print(extractedData);
+            final List<VitalSign> loadedVitalSigns = [];
+            if (extractedData != null) {
+              extractedData.forEach((vitalSignData) {
+                //print(patientData);
+                loadedVitalSigns.add(VitalSign.fromJson(vitalSignData));
+              });
+            }
+            //print(_patients[0].id);
+            _currentPatientId = patientId;
+            _allVitalSignsForPatient = loadedVitalSigns;
+            notifyListeners();
+          }
+          break;
+        default:
+          {
+            throw Exception(response.reasonPhrase);
+          }
       }
-      //print(_patients[0].id);
-      _allVitalSignsForPatient = loadedVitalSigns;
-      notifyListeners();
     } catch (error) {
       rethrow;
     }
