@@ -126,7 +126,7 @@ class _AddPatientState extends State<AddPatient> {
         showDialog(
           context: context,
           builder: (ctx) => SimpleDialogue(
-              header: 'Create Success!',
+              header: 'Add patient success!',
               text: '${patient.firstName} ${patient.lastName}'),
         );
         clearAll();
