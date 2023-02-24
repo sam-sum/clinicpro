@@ -25,7 +25,6 @@ class _SearchState extends State<Search> {
   TextEditingController _firstNameFieldController = TextEditingController();
   TextEditingController _lastNameFieldController = TextEditingController();
   TextEditingController _patientIdFieldController = TextEditingController();
-  var _controller = TextEditingController();
 
   String? _firstNameField;
   String? _lastNameField;
@@ -46,11 +45,6 @@ class _SearchState extends State<Search> {
     });
     _patientIdFieldController.addListener(() {
       _patientIdField = _patientIdFieldController.text;
-      filterPatient();
-      setState(() {});
-    });
-    _controller.addListener(() {
-      _controller.text = '';
       filterPatient();
       setState(() {});
     });
