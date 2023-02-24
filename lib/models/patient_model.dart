@@ -131,7 +131,7 @@ class Response {
 
 class Patient {
   LatestRecord? latestRecord;
-  String? sId;
+  //String? sId;
   String? id;
   String? idCardNumber;
   String? firstName;
@@ -147,16 +147,16 @@ class Patient {
   String? postalCode;
   bool? medicalAllergies;
   bool? disabled;
-  String? createdAt;
-  String? updatedAt;
-  int? iV;
+  // String? createdAt;
+  // String? updatedAt;
+  // int? iV;
   String? medicalNotes;
   String? doctor;
   String? email;
 
   Patient(
       {this.latestRecord,
-      this.sId,
+      // this.sId,
       this.id,
       this.idCardNumber,
       this.firstName,
@@ -172,9 +172,9 @@ class Patient {
       this.postalCode,
       this.medicalAllergies,
       this.disabled,
-      this.createdAt,
-      this.updatedAt,
-      this.iV,
+      // this.createdAt,
+      // this.updatedAt,
+      // this.iV,
       this.medicalNotes,
       this.doctor,
       this.email});
@@ -183,7 +183,7 @@ class Patient {
     latestRecord = json['latestRecord'] != null
         ? LatestRecord.fromJson(json['latestRecord'])
         : null;
-    sId = json['_id'];
+    // sId = json['_id'];
     id = json['id'];
     idCardNumber = json['idCardNumber'];
     firstName = json['firstName'];
@@ -209,9 +209,9 @@ class Patient {
     postalCode = json['postalCode'];
     medicalAllergies = json['medicalAllergies'];
     disabled = json['disabled'];
-    createdAt = json['createdAt'];
-    updatedAt = json['updatedAt'];
-    iV = json['__v'];
+    // createdAt = json['createdAt'];
+    // updatedAt = json['updatedAt'];
+    // iV = json['__v'];
     medicalNotes = json['medicalNotes'];
     doctor = json['doctor'];
     email = json['email'];
@@ -222,7 +222,7 @@ class Patient {
     if (this.latestRecord != null) {
       data['latestRecord'] = this.latestRecord!.toJson();
     }
-    data['_id'] = this.sId;
+    //data['_id'] = this.sId;
     data['id'] = this.id;
     data['idCardNumber'] = this.idCardNumber;
     data['firstName'] = this.firstName;
@@ -238,9 +238,9 @@ class Patient {
     data['postalCode'] = this.postalCode;
     data['medicalAllergies'] = this.medicalAllergies;
     data['disabled'] = this.disabled;
-    data['createdAt'] = this.createdAt;
-    data['updatedAt'] = this.updatedAt;
-    data['__v'] = this.iV;
+    // data['createdAt'] = this.createdAt;
+    // data['updatedAt'] = this.updatedAt;
+    // data['__v'] = this.iV;
     data['medicalNotes'] = this.medicalNotes;
     data['doctor'] = this.doctor;
     data['email'] = this.email;

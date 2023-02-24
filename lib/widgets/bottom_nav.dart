@@ -43,17 +43,17 @@ class _BottomNavState extends State<BottomNav> {
           ),
         ),
         actions: <Widget>[
-          if (_selectedIndex == 2)
-            Padding(
-                padding: const EdgeInsets.only(right: 20.0),
-                child: GestureDetector(
-                  onTap: () {},
-                  child: const Icon(
-                    Icons.save,
-                    color: Colors.black,
-                    size: 24,
-                  ),
-                )),
+          // if (_selectedIndex == 2)
+          //   Padding(
+          //       padding: const EdgeInsets.only(right: 20.0),
+          //       child: GestureDetector(
+          //         onTap: () {},
+          //         child: const Icon(
+          //           Icons.save,
+          //           color: Colors.black,
+          //           size: 24,
+          //         ),
+          //       )),
         ],
       ),
       body: Center(

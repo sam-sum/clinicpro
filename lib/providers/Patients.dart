@@ -38,6 +38,25 @@ class Patients with ChangeNotifier {
 
   Future<void> updatePatient(String id, Patient newPatient) async {
     await Future.delayed(const Duration(seconds: 3));
-    //throw Exception("test update error");
+  }
+
+  Future<Patient> createPatient(Patient patient) async {
+    final response = await http.post(
+      Uri.parse('https://gp5.onrender.com/patients'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(patient.toJson()),
+    );
+
+    if (response.statusCode == 200) {
+      if (jsonDecode(response.body)['success'] == true) {
+        return Patient.fromJson(jsonDecode(response.body));
+      } else {
+        throw Exception(jsonDecode(response.body)['message']);
+      }
+    } else {
+      throw Exception(jsonDecode(response.body)['message']);
+    }
   }
 }
