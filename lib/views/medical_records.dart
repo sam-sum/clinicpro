@@ -13,6 +13,7 @@ import '../providers/Vital_signs.dart';
 import '../widgets/simple_dialogue.dart';
 import '../widgets/stateless_button.dart';
 import '../assets/constants.dart' as constants;
+import '../assets/enum_test_category.dart';
 
 class MedicalRecords extends StatefulWidget {
   const MedicalRecords({Key? key}) : super(key: key);
@@ -368,8 +369,10 @@ class _MedicalRecordsState extends State<MedicalRecords>
                           Expanded(
                             flex: 6,
                             child: Center(
-                              child: Text(formatter.format(
-                                  DateTime.parse(readingOne.modifyDate!))),
+                              child: Text((readingOne.modifyDate == null)
+                                  ? ""
+                                  : formatter.format(
+                                      DateTime.parse(readingOne.modifyDate!))),
                             ),
                           )
                         ],
@@ -404,7 +407,7 @@ class _MedicalRecordsState extends State<MedicalRecords>
     var uuid = const Uuid();
     VitalSign newRec = VitalSign();
     newRec.id = uuid.v4().toString();
-    print("uuid: ${newRec.id}");
+    //print("uuid: ${newRec.id}");
     newRec.patientId = _patient.id;
     newRec.nurseName = _nurseName;
     newRec.modifyDate = DateTime.now().toString();
@@ -624,22 +627,5 @@ class _MedicalRecordsState extends State<MedicalRecords>
     setState(() {
       _isLoading = false;
     });
-  }
-}
-
-enum TestCategory {
-  // ignore: constant_identifier_names
-  BLOOD_PRESSURE,
-  // ignore: constant_identifier_names
-  HEARTBEAT_RATE,
-  // ignore: constant_identifier_names
-  RESPIRATORY_RATE,
-  // ignore: constant_identifier_names
-  BLOOD_OXYGEN_LEVEL
-}
-
-extension ParseToString on TestCategory {
-  String toShortString() {
-    return toString().split('.').last;
   }
 }
