@@ -10,6 +10,9 @@ import '../assets/enum_test_category.dart';
 import '../assets/enum_gender_selection.dart';
 
 class Patients with ChangeNotifier {
+  // final String HOST_URL = 'rest-clinicpro.onrender.com';
+  final String HOST_URL = 'gp5.onrender.com';
+
   List<Patient> _patients = [];
 
   List<Patient> get patients {
@@ -21,7 +24,7 @@ class Patients with ChangeNotifier {
   }
 
   Future<void> fetchAllPatients() async {
-    final url = Uri.https('gp5.onrender.com', '/patients');
+    final url = Uri.https(HOST_URL, '/patients');
     //final url = Uri.https('rest-clinicpro.onrender.com', '/patients');
     try {
       final response = await http.get(url);
@@ -46,9 +49,9 @@ class Patients with ChangeNotifier {
   }
 
   Future<Patient> createPatient(Patient patient) async {
+    final url = Uri.https(HOST_URL, '/patients');
     final response = await http.post(
-      Uri.parse('https://rest-clinicpro.onrender.com/patients'),
-      //Uri.parse('https://gp5.onrender.com/patients'),
+      url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -79,7 +82,7 @@ class Patients with ChangeNotifier {
     required int heartBeatRate,
     required FilterGender gender,
   }) async {
-    final url = Uri.https('gp5.onrender.com', '/tests');
+    final url = Uri.https(HOST_URL, '/tests');
     //final url = Uri.https('rest-clinicpro.onrender.com', '/tests');
     final List<VitalSign> loadedTests = [];
     List<VitalSign> uniqueTests = [];
