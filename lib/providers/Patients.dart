@@ -25,7 +25,6 @@ class Patients with ChangeNotifier {
 
   Future<void> fetchAllPatients() async {
     final url = Uri.https(HOST_URL, '/patients');
-    //final url = Uri.https('rest-clinicpro.onrender.com', '/patients');
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body)['data'] as dynamic;
@@ -49,7 +48,8 @@ class Patients with ChangeNotifier {
   }
 
   Future<Patient> createPatient(Patient patient) async {
-    final url = Uri.https(HOST_URL, '/patients');
+    //final url = Uri.https(HOST_URL, '/patients');
+    final url = Uri.https('rest-clinicpro.onrender.com', '/patients');
     final response = await http.post(
       url,
       headers: <String, String>{
