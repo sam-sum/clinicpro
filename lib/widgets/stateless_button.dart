@@ -8,6 +8,7 @@ class StatelessButton extends StatelessWidget {
   final EdgeInsets? margin;
   final double? height;
   final double? width;
+  final EdgeInsets? padding;
 
   const StatelessButton({
     super.key,
@@ -16,6 +17,7 @@ class StatelessButton extends StatelessWidget {
     this.margin,
     this.width,
     this.height,
+    this.padding,
   });
 
   @override
@@ -36,7 +38,8 @@ class StatelessButton extends StatelessWidget {
         child: SizedBox(
             width: width ?? 1200,
             child: Padding(
-              padding: EdgeInsets.symmetric(vertical: getProrataHeight(20)),
+              padding: padding ??
+                  EdgeInsets.symmetric(vertical: getProrataHeight(20)),
               child: TextButton(
                 onPressed: onPressed,
                 style: flatButtonStyle,

@@ -5,6 +5,8 @@ import 'package:clinicpro/models/patient_model.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import '../assets/enum_filter_op.dart';
+import '../assets/enum_gender_selection.dart';
 import '../providers/Patients.dart';
 import '../utilities/screen_size.dart';
 import '../widgets/stateless_button.dart';
@@ -21,71 +23,56 @@ class _OverviewState extends State<Overview> {
   var _isLoading = false;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  String _pressure = '';
-  String _lowerpressure = '';
-  String _oxygen = '';
-  String _respiratory = '';
-  String _heartbeat = '';
-  List<Patient> patientList = [];
-  List<Patient> filterpatientList = [];
 
-  String _oxyDrop = 'Less Than';
-  String _resDrop = 'Less Than';
-  String _heartDrop = 'Less Than';
+  TextEditingController _upperPressureFieldController = TextEditingController();
+  TextEditingController _lowerPressureFieldController = TextEditingController();
+  TextEditingController _oxygenLevelFieldController = TextEditingController();
+  TextEditingController _respiratoryRateFieldController =
+      TextEditingController();
+  TextEditingController _heartBeatRateFieldController = TextEditingController();
 
-  // List of items in our dropdown menu
-  var items = [
-    'Less Than',
-    'Equal',
-    'Greater Than',
-  ];
+  List<Patient> _filteredPatients = [];
+  List<Patient> _patients = [];
 
-  void filterList() {
-    filterpatientList = [];
-    patientList.forEach((element) {
-      var record = element.latestRecord;
-      if (record != null) {
-        bool filterOut = false;
-
-        if (_pressure.isNotEmpty) {
-          if (record.bLOODPRESSURE!.isEmpty) {
-            filterOut = true;
-          } else {
-            int a = int.tryParse(_pressure) ?? 0;
-            int b = int.tryParse(record.bLOODPRESSURE!) ?? 0;
-            if (!(b <= a)) filterOut = true;
-          }
-        }
-
-        if (_lowerpressure.isNotEmpty) {
-          if (record.bLOODPRESSURE!.isEmpty) {
-            filterOut = true;
-          } else {
-            int a = int.tryParse(_lowerpressure) ?? 0;
-            int b = int.tryParse(record.bLOODPRESSURE!) ?? 0;
-            if (!(b >= a)) filterOut = true;
-          }
-        }
-
-        if (!filterOut) filterpatientList.add(element);
-      }
-    });
+  List<DropdownMenuItem<FilterOp>> get _dropFilterOp {
+    List<DropdownMenuItem<FilterOp>> menuItems = [
+      DropdownMenuItem(child: Text("Greater Than"), value: FilterOp.greater),
+      DropdownMenuItem(child: Text("Equal"), value: FilterOp.equal),
+      DropdownMenuItem(child: Text("Less Than"), value: FilterOp.less),
+    ];
+    return menuItems;
   }
+
+  List<DropdownMenuItem<FilterGender>> get _dropFilterGender {
+    List<DropdownMenuItem<FilterGender>> menuItems = [
+      DropdownMenuItem(child: Text("Both"), value: FilterGender.both),
+      DropdownMenuItem(child: Text("Male"), value: FilterGender.male),
+      DropdownMenuItem(child: Text("Female"), value: FilterGender.female),
+    ];
+    return menuItems;
+  }
+
+  FilterOp _opUpperPressure = FilterOp.greater;
+  FilterOp _opLowerPressure = FilterOp.greater;
+  FilterOp _opOxygenLevel = FilterOp.greater;
+  FilterOp _opRespiratoryRate = FilterOp.greater;
+  FilterOp _opHeartBeatRate = FilterOp.greater;
+  FilterGender _gender = FilterGender.both;
 
   bool checkFilter() {
-    return !(_pressure.isEmpty &&
-        _lowerpressure.isEmpty &&
-        _oxygen.isEmpty &&
-        _respiratory.isEmpty &&
-        _heartbeat.isEmpty);
+    return !(_upperPressureFieldController.text.isEmpty &&
+        _lowerPressureFieldController.text.isEmpty &&
+        _oxygenLevelFieldController.text.isEmpty &&
+        _respiratoryRateFieldController.text.isEmpty &&
+        _heartBeatRateFieldController.text.isEmpty);
   }
 
-  void resetFilter() {
-    _pressure = '';
-    _lowerpressure = '';
-    _oxygen = '';
-    _respiratory = '';
-    _heartbeat = '';
+  void clearFilter() {
+    _upperPressureFieldController.text = '';
+    _lowerPressureFieldController.text = '';
+    _oxygenLevelFieldController.text = '';
+    _respiratoryRateFieldController.text = '';
+    _heartBeatRateFieldController.text = '';
   }
 
   @override
@@ -104,12 +91,55 @@ class _OverviewState extends State<Overview> {
     super.didChangeDependencies();
   }
 
+  void getFilteredPatients() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    if (!checkFilter()) {
+      _filteredPatients = _patients;
+    } else {
+      FilterOp opUpperPressure = _upperPressureFieldController.text.isEmpty
+          ? FilterOp.nop
+          : _opUpperPressure;
+      FilterOp opLowerPressure = _lowerPressureFieldController.text.isEmpty
+          ? FilterOp.nop
+          : _opLowerPressure;
+      FilterOp opOxygenLevel = _oxygenLevelFieldController.text.isEmpty
+          ? FilterOp.nop
+          : _opOxygenLevel;
+      FilterOp opRespiratoryRate = _respiratoryRateFieldController.text.isEmpty
+          ? FilterOp.nop
+          : _opRespiratoryRate;
+      FilterOp opHeartBeatRate = _heartBeatRateFieldController.text.isEmpty
+          ? FilterOp.nop
+          : _opHeartBeatRate;
+      FilterGender gender = _gender;
+
+      _filteredPatients = await Provider.of<Patients>(context, listen: false)
+          .fetchPatientsWithFilters(
+        opUpperPressure: opUpperPressure,
+        upperPressure: int.tryParse(_upperPressureFieldController.text) ?? 0,
+        opLowerPressure: opLowerPressure,
+        lowerPressure: int.tryParse(_lowerPressureFieldController.text) ?? 0,
+        opOxygenLevel: opOxygenLevel,
+        oxygenLevel: int.tryParse(_oxygenLevelFieldController.text) ?? 0,
+        opRespiratoryRate: opRespiratoryRate,
+        respiratoryRate:
+            int.tryParse(_respiratoryRateFieldController.text) ?? 0,
+        opHeartBeatRate: opHeartBeatRate,
+        heartBeatRate: int.tryParse(_heartBeatRateFieldController.text) ?? 0,
+        gender: gender,
+      );
+    }
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    //final patientsData = Provider.of<Patients>(context);
-    patientList = Provider.of<Patients>(context).patients;
-    filterList();
-
+    final _patients = Provider.of<Patients>(context).patients;
     return Material(
         color: Styles.backgroundColor,
         child: _isLoading
@@ -159,9 +189,13 @@ class _OverviewState extends State<Overview> {
                       child: ListView.builder(
                           scrollDirection: Axis.vertical,
                           shrinkWrap: true,
-                          itemCount: filterpatientList.length,
+                          itemCount: checkFilter()
+                              ? _filteredPatients.length
+                              : _patients.length,
                           itemBuilder: ((context, index) {
-                            var item = filterpatientList[index];
+                            var item = checkFilter()
+                                ? _filteredPatients[index]
+                                : _patients[index];
                             return InkWell(
                               onTap: () {
                                 Navigator.pushNamed(
@@ -287,40 +321,33 @@ class _OverviewState extends State<Overview> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(
-                'Filter',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: getProrataHeight(20)),
-              Text('Blood Pressure'),
+              Text('Upper Blood Pressure'),
               Row(
                 children: [
-                  Flexible(
-                    child: TextFormField(
-                      textAlign: TextAlign.center,
-                      initialValue: _pressure,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        isDense: true,
-                        contentPadding: EdgeInsets.all(10),
-                        border: OutlineInputBorder(),
-                      ),
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly
-                      ], // Only numbers can be entered
-                      onSaved: (val) {
-                        _pressure = val!;
+                  Expanded(
+                    child: DropdownButtonFormField<FilterOp>(
+                      value: _opUpperPressure,
+                      style: TextStyle(color: Colors.black, fontSize: 16),
+                      onChanged: (FilterOp? value) {
+                        // This is called when the user selects an item.
+                        setState(() {
+                          _opUpperPressure = value!;
+                        });
                       },
+                      items: _dropFilterOp,
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        contentPadding: EdgeInsets.all(1),
+                      ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 10, right: 10),
-                    child: Text('/'),
+                  SizedBox(
+                    width: 10,
                   ),
-                  Flexible(
+                  Expanded(
                     child: TextFormField(
                       textAlign: TextAlign.center,
-                      initialValue: _lowerpressure,
+                      controller: _upperPressureFieldController,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         isDense: true,
@@ -330,83 +357,209 @@ class _OverviewState extends State<Overview> {
                       inputFormatters: [
                         FilteringTextInputFormatter.digitsOnly
                       ], // Only numbers can be entered
-                      onSaved: (val) {
-                        _lowerpressure = val!;
-                      },
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: getProrataHeight(10)),
+              Text('Lower Blood Pressure'),
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<FilterOp>(
+                      value: _opLowerPressure,
+                      style: TextStyle(color: Colors.black, fontSize: 16),
+                      onChanged: (FilterOp? value) {
+                        // This is called when the user selects an item.
+                        setState(() {
+                          _opLowerPressure = value!;
+                        });
+                      },
+                      items: _dropFilterOp,
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        contentPadding: EdgeInsets.all(1),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: TextFormField(
+                      textAlign: TextAlign.center,
+                      controller: _lowerPressureFieldController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        contentPadding: EdgeInsets.all(10),
+                        border: OutlineInputBorder(),
+                      ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly
+                      ], // Only numbers can be entered
+                    ),
+                  ),
+                ],
+              ),
               Text('Blood Oxygen Level'),
-              TextFormField(
-                textAlign: TextAlign.center,
-                initialValue: _oxygen,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  isDense: true,
-                  contentPadding: EdgeInsets.all(10),
-                  border: OutlineInputBorder(),
-                ),
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly
-                ], // Only numbers can be entered
-                onSaved: (val) {
-                  _oxygen = val!;
-                },
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<FilterOp>(
+                      value: _opOxygenLevel,
+                      style: TextStyle(color: Colors.black, fontSize: 16),
+                      onChanged: (FilterOp? value) {
+                        // This is called when the user selects an item.
+                        setState(() {
+                          _opOxygenLevel = value!;
+                        });
+                      },
+                      items: _dropFilterOp,
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        contentPadding: EdgeInsets.all(1),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: TextFormField(
+                      textAlign: TextAlign.center,
+                      controller: _oxygenLevelFieldController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        contentPadding: EdgeInsets.all(10),
+                        border: OutlineInputBorder(),
+                      ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly
+                      ], // Only numbers can be entered
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(height: getProrataHeight(10)),
               Text('Respiratory Rate'),
-              TextFormField(
-                textAlign: TextAlign.center,
-                initialValue: _respiratory,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  isDense: true,
-                  contentPadding: EdgeInsets.all(10),
-                  border: OutlineInputBorder(),
-                ),
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly
-                ], // Only numbers can be entered
-                onSaved: (val) {
-                  _respiratory = val!;
-                },
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<FilterOp>(
+                      value: _opRespiratoryRate,
+                      style: TextStyle(color: Colors.black, fontSize: 16),
+                      onChanged: (FilterOp? value) {
+                        // This is called when the user selects an item.
+                        setState(() {
+                          _opRespiratoryRate = value!;
+                        });
+                      },
+                      items: _dropFilterOp,
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        contentPadding: EdgeInsets.all(1),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: TextFormField(
+                      textAlign: TextAlign.center,
+                      controller: _respiratoryRateFieldController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        contentPadding: EdgeInsets.all(10),
+                        border: OutlineInputBorder(),
+                      ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly
+                      ], // Only numbers can be entered
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(height: getProrataHeight(10)),
               Text('Heart Beat Rate'),
-              TextFormField(
-                textAlign: TextAlign.center,
-                initialValue: _heartbeat,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  isDense: true,
-                  contentPadding: EdgeInsets.all(10),
-                  border: OutlineInputBorder(),
-                ),
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly
-                ], // Only numbers can be entered
-                onSaved: (val) {
-                  _heartbeat = val!;
-                },
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<FilterOp>(
+                      value: _opHeartBeatRate,
+                      style: TextStyle(color: Colors.black, fontSize: 16),
+                      onChanged: (FilterOp? value) {
+                        // This is called when the user selects an item.
+                        setState(() {
+                          _opHeartBeatRate = value!;
+                        });
+                      },
+                      items: _dropFilterOp,
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        contentPadding: EdgeInsets.all(1),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: TextFormField(
+                      textAlign: TextAlign.center,
+                      controller: _heartBeatRateFieldController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        contentPadding: EdgeInsets.all(10),
+                        border: OutlineInputBorder(),
+                      ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly
+                      ], // Only numbers can be entered
+                    ),
+                  ),
+                ],
               ),
+              Text('Gender'),
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<FilterGender>(
+                      value: _gender,
+                      style: TextStyle(color: Colors.black, fontSize: 16),
+                      onChanged: (FilterGender? value) {
+                        // This is called when the user selects an item.
+                        setState(() {
+                          _gender = value!;
+                        });
+                      },
+                      items: _dropFilterGender,
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        contentPadding: EdgeInsets.all(1),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 5),
               Row(
                 children: [
                   Expanded(
                     flex: 1,
                     child: StatelessButton(
-                      height: 45,
+                      height: 40,
                       buttonText: 'Filter',
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
                           _formKey.currentState!.save();
-                          setState(() {
-                            filterList();
-                          });
+                          getFilteredPatients();
+                          Navigator.pop(context);
                         }
-                        Navigator.pop(context);
                       },
+                      padding:
+                          EdgeInsets.symmetric(vertical: getProrataHeight(0)),
                     ),
                   ),
                   checkFilter()
@@ -415,14 +568,17 @@ class _OverviewState extends State<Overview> {
                           child: Padding(
                             padding: const EdgeInsets.only(left: 10.0),
                             child: StatelessButton(
-                              height: 45,
+                              height: 40,
                               buttonText: 'Reset',
                               onPressed: () {
                                 setState(() {
-                                  resetFilter();
+                                  clearFilter();
+                                  getFilteredPatients();
                                 });
                                 Navigator.pop(context);
                               },
+                              padding: EdgeInsets.symmetric(
+                                  vertical: getProrataHeight(0)),
                             ),
                           ),
                         )
