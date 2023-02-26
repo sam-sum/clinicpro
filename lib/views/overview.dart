@@ -73,6 +73,13 @@ class _OverviewState extends State<Overview> {
     _oxygenLevelFieldController.text = '';
     _respiratoryRateFieldController.text = '';
     _heartBeatRateFieldController.text = '';
+    _opUpperPressure = FilterOp.greater;
+    _opLowerPressure = FilterOp.greater;
+    _opOxygenLevel = FilterOp.greater;
+    _opRespiratoryRate = FilterOp.greater;
+    _opHeartBeatRate = FilterOp.greater;
+    _gender = FilterGender.both;
+    setState(() {});
   }
 
   @override
