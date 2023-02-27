@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:clinicpro/utilities/styles.dart';
 import 'package:flutter/services.dart';
@@ -9,13 +10,11 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/patient_model.dart';
-import '../providers/Patients.dart';
+import '../providers/patients.dart';
 import '../utilities/screen_size.dart';
 import '../widgets/simple_dialogue.dart';
 import '../widgets/stateless_button.dart';
-
-const String MALE = "Male";
-const String FEMALE = "Female";
+import '../assets/constants.dart' as constants;
 
 class AddPatient extends StatefulWidget {
   const AddPatient({Key? key}) : super(key: key);
@@ -29,7 +28,7 @@ Patient createNewPatient() {
   Patient patient = Patient();
   patient.id = uuid.v4().toString();
   patient.disabled = false;
-  patient.bedNumber = 'A' + Random().nextInt(999).toString().padLeft(3, '0');
+  patient.bedNumber = 'A${Random().nextInt(999).toString().padLeft(3, '0')}';
   //patient.sId = uuid.v4().toString();
   //patient.createdAt = DateTime.now().toString();
   //patient.updatedAt = DateTime.now().toString();
@@ -43,24 +42,24 @@ Patient createNewPatient() {
 class _AddPatientState extends State<AddPatient> {
   final _formKey = GlobalKey<FormState>();
 
-  TextEditingController _firstNameController = TextEditingController();
-  TextEditingController _lastNameController = TextEditingController();
-  TextEditingController _idController = TextEditingController();
-  TextEditingController _dateOfBirthController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _idController = TextEditingController();
+  final TextEditingController _dateOfBirthController = TextEditingController();
 
-  TextEditingController _yearController = TextEditingController();
-  TextEditingController _monthController = TextEditingController();
-  TextEditingController _dayController = TextEditingController();
-  TextEditingController _addressController = TextEditingController();
-  TextEditingController _phoneController = TextEditingController();
-  TextEditingController _postalcodeController = TextEditingController();
-  TextEditingController _heightController = TextEditingController();
-  TextEditingController _weightController = TextEditingController();
-  TextEditingController _diseaseController = TextEditingController();
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _doctorController = TextEditingController();
+  //final TextEditingController _yearController = TextEditingController();
+  //final TextEditingController _monthController = TextEditingController();
+  //final TextEditingController _dayController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _postalCodeController = TextEditingController();
+  final TextEditingController _heightController = TextEditingController();
+  final TextEditingController _weightController = TextEditingController();
+  final TextEditingController _diseaseController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _doctorController = TextEditingController();
 
-  String _gender = MALE;
+  String _gender = constants.MALE;
 
   bool _isDisabled = false;
   bool _isAllergies = false;
@@ -68,10 +67,11 @@ class _AddPatientState extends State<AddPatient> {
   bool _isLoading = false;
 
   String? checkEmptyValidator(value) {
-    if (value!.isEmpty)
+    if (value!.isEmpty) {
       return 'Missing';
-    else
+    } else {
       return null;
+    }
   }
 
   void clearAll() {
@@ -81,13 +81,13 @@ class _AddPatientState extends State<AddPatient> {
     _dateOfBirthController.text = '';
     _addressController.text = '';
     _phoneController.text = '';
-    _postalcodeController.text = '';
+    _postalCodeController.text = '';
     _heightController.text = '';
     _weightController.text = '';
     _diseaseController.text = '';
     _emailController.text = '';
     _doctorController.text = '';
-    _gender = MALE;
+    _gender = constants.MALE;
     _isDisabled = false;
     _isAllergies = false;
     setState(() {});
@@ -102,7 +102,7 @@ class _AddPatientState extends State<AddPatient> {
 
     patient.address = _addressController.text;
     patient.phoneNumber = int.parse(_phoneController.text);
-    patient.postalCode = _postalcodeController.text;
+    patient.postalCode = _postalCodeController.text;
     patient.height = double.parse(_heightController.text);
     patient.weight = double.parse(_weightController.text);
     patient.medicalNotes = _diseaseController.text;
@@ -111,7 +111,7 @@ class _AddPatientState extends State<AddPatient> {
     patient.gender = _gender;
 
     patient.photoUrl =
-        'https://randomuser.me/api/portraits/${_gender == "Male" ? "men" : "women"}/${Random().nextInt(10).toString()}.jpg';
+        'https://randomuser.me/api/portraits/${_gender == constants.MALE ? constants.MEN : constants.WOMEN}/${Random().nextInt(10).toString()}.jpg';
 
     patient.disabled = _isDisabled;
     patient.medicalAllergies = _isAllergies;
@@ -132,7 +132,9 @@ class _AddPatientState extends State<AddPatient> {
         clearAll();
       });
     } catch (error) {
-      print(error.toString());
+      if (kDebugMode) {
+        print(error.toString());
+      }
       await showDialog(
         context: context,
         builder: (ctx) => SimpleDialogue(
@@ -147,6 +149,17 @@ class _AddPatientState extends State<AddPatient> {
   @override
   void dispose() {
     _firstNameController.dispose();
+    _lastNameController.dispose();
+    _idController.dispose();
+    _dateOfBirthController.dispose();
+    _addressController.dispose();
+    _phoneController.dispose();
+    _postalCodeController.dispose();
+    _heightController.dispose();
+    _weightController.dispose();
+    _diseaseController.dispose();
+    _emailController.dispose();
+    _doctorController.dispose();
     super.dispose();
   }
 
@@ -163,7 +176,7 @@ class _AddPatientState extends State<AddPatient> {
           child: Column(
             children: [
               Padding(
-                padding: EdgeInsets.all(15),
+                padding: const EdgeInsets.all(15),
                 child: Form(
                   key: _formKey,
                   autovalidateMode: AutovalidateMode.disabled,
@@ -172,7 +185,7 @@ class _AddPatientState extends State<AddPatient> {
                       TextFormField(
                         controller: _firstNameController,
                         keyboardType: TextInputType.name,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'First Name',
                           isDense: true,
                           contentPadding: EdgeInsets.all(14),
@@ -184,7 +197,7 @@ class _AddPatientState extends State<AddPatient> {
                       TextFormField(
                         controller: _lastNameController,
                         keyboardType: TextInputType.name,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Last Name',
                           isDense: true,
                           contentPadding: EdgeInsets.all(14),
@@ -196,7 +209,7 @@ class _AddPatientState extends State<AddPatient> {
                       TextFormField(
                         controller: _idController,
                         keyboardType: TextInputType.text,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'ID Number',
                           isDense: true,
                           contentPadding: EdgeInsets.all(14),
@@ -227,7 +240,9 @@ class _AddPatientState extends State<AddPatient> {
                                 lastDate: DateTime.now());
 
                             if (pickedDate != null) {
-                              print(pickedDate);
+                              if (kDebugMode) {
+                                print(pickedDate);
+                              }
                               String formattedDate =
                                   DateFormat('yyyy-MM-dd').format(pickedDate);
 
@@ -235,7 +250,9 @@ class _AddPatientState extends State<AddPatient> {
                                 _dateOfBirthController.text = formattedDate;
                               });
                             } else {
-                              print("Date is not selected");
+                              if (kDebugMode) {
+                                print("Date is not selected");
+                              }
                             }
                           }),
                       // Row(
@@ -302,7 +319,7 @@ class _AddPatientState extends State<AddPatient> {
                       TextFormField(
                         controller: _addressController,
                         keyboardType: TextInputType.streetAddress,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Address',
                           border: OutlineInputBorder(),
                           isDense: true,
@@ -313,10 +330,10 @@ class _AddPatientState extends State<AddPatient> {
                       SizedBox(height: getProrataHeight(15)),
                       Row(
                         children: <Widget>[
-                          new Flexible(
+                          Flexible(
                             child: Column(
                               children: [
-                                new TextFormField(
+                                TextFormField(
                                   controller: _phoneController,
                                   keyboardType: TextInputType.phone,
                                   decoration: const InputDecoration(
@@ -335,11 +352,11 @@ class _AddPatientState extends State<AddPatient> {
                             ),
                           ),
                           SizedBox(width: getProrataHeight(30)),
-                          new Flexible(
+                          Flexible(
                             child: Column(
                               children: [
                                 TextFormField(
-                                  controller: _postalcodeController,
+                                  controller: _postalCodeController,
                                   keyboardType: TextInputType.text,
                                   decoration: const InputDecoration(
                                     labelText: 'Postal Code',
@@ -362,10 +379,10 @@ class _AddPatientState extends State<AddPatient> {
                       SizedBox(height: getProrataHeight(15)),
                       Row(
                         children: <Widget>[
-                          new Flexible(
+                          Flexible(
                             child: Column(
                               children: [
-                                new TextFormField(
+                                TextFormField(
                                   controller: _heightController,
                                   keyboardType: TextInputType.number,
                                   decoration: const InputDecoration(
@@ -384,10 +401,10 @@ class _AddPatientState extends State<AddPatient> {
                             ),
                           ),
                           SizedBox(width: getProrataHeight(30)),
-                          new Flexible(
+                          Flexible(
                             child: Column(
                               children: [
-                                new TextFormField(
+                                TextFormField(
                                   controller: _weightController,
                                   keyboardType: TextInputType.number,
                                   decoration: const InputDecoration(
@@ -410,7 +427,7 @@ class _AddPatientState extends State<AddPatient> {
                       SizedBox(height: getProrataHeight(15)),
                       TextFormField(
                         controller: _diseaseController,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Diseases',
                           border: OutlineInputBorder(),
                           isDense: true,
@@ -421,7 +438,7 @@ class _AddPatientState extends State<AddPatient> {
                       SizedBox(height: getProrataHeight(15)),
                       TextFormField(
                         controller: _emailController,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Email',
                           border: OutlineInputBorder(),
                           isDense: true,
@@ -432,7 +449,7 @@ class _AddPatientState extends State<AddPatient> {
                       SizedBox(height: getProrataHeight(15)),
                       TextFormField(
                         controller: _doctorController,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Doctor',
                           border: OutlineInputBorder(),
                           isDense: true,
@@ -447,7 +464,7 @@ class _AddPatientState extends State<AddPatient> {
                             child: ListTile(
                               title: const Text('Male'),
                               leading: Radio<String>(
-                                value: MALE,
+                                value: constants.MALE,
                                 groupValue: _gender,
                                 onChanged: (value) {
                                   setState(() {
@@ -461,7 +478,7 @@ class _AddPatientState extends State<AddPatient> {
                             child: ListTile(
                               title: const Text('Female'),
                               leading: Radio<String>(
-                                value: FEMALE,
+                                value: constants.FEMALE,
                                 groupValue: _gender,
                                 onChanged: (value) {
                                   setState(() {
@@ -476,27 +493,25 @@ class _AddPatientState extends State<AddPatient> {
                       Row(
                         children: [
                           Align(
-                            child: Container(
-                              child: Row(
-                                children: [
-                                  Text(
-                                    "Disabled?",
-                                    style: TextStyle(
-                                      fontSize: getProrataWidth(16),
-                                    ),
+                            child: Row(
+                              children: [
+                                Text(
+                                  "Disabled?",
+                                  style: TextStyle(
+                                    fontSize: getProrataWidth(16),
                                   ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  FaIcon(
-                                    FontAwesomeIcons.wheelchair,
-                                    size: 20,
-                                  )
-                                ],
-                              ),
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                const FaIcon(
+                                  FontAwesomeIcons.wheelchair,
+                                  size: 20,
+                                )
+                              ],
                             ),
                           ),
-                          Spacer(),
+                          const Spacer(),
                           Switch(
                             value: _isDisabled,
                             onChanged: (value) => {
@@ -510,16 +525,14 @@ class _AddPatientState extends State<AddPatient> {
                       Row(
                         children: [
                           Align(
-                            child: Container(
-                              child: Text(
-                                "Medical Allergies?",
-                                style: TextStyle(
-                                  fontSize: getProrataWidth(16),
-                                ),
+                            child: Text(
+                              "Medical Allergies?",
+                              style: TextStyle(
+                                fontSize: getProrataWidth(16),
                               ),
                             ),
                           ),
-                          Spacer(),
+                          const Spacer(),
                           Switch(
                             value: _isAllergies,
                             onChanged: (value) => {

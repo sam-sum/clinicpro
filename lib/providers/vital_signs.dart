@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:clinicpro/models/patient_model.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../models/vital_sign_model.dart';
 import '../models/vital_sign_latest_model.dart';
@@ -133,30 +133,38 @@ class VitalSigns with ChangeNotifier {
     _summary.setHeartBeatRate(null);
     if (patient.latestRecord?.bLOODPRESSURE != null &&
         patient.latestRecord!.bLOODPRESSURE!.isNotEmpty) {
-      print("latest blood pressure: ${patient.latestRecord!.bLOODPRESSURE!}");
+      if (kDebugMode) {
+        print("latest blood pressure: ${patient.latestRecord!.bLOODPRESSURE!}");
+      }
       final readings = await getVitalSign(
           '/patients/${patient.id}/tests/${patient.latestRecord!.bLOODPRESSURE}');
       _summary.setBloodPressure(readings);
     }
     if (patient.latestRecord?.bLOODOXYGENLEVEL != null &&
         patient.latestRecord!.bLOODOXYGENLEVEL!.isNotEmpty) {
-      print(
-          "latest blood oxygen level: ${patient.latestRecord!.bLOODOXYGENLEVEL!}");
+      if (kDebugMode) {
+        print(
+            "latest blood oxygen level: ${patient.latestRecord!.bLOODOXYGENLEVEL!}");
+      }
       final readings = await getVitalSign(
           '/patients/${patient.id}/tests/${patient.latestRecord!.bLOODOXYGENLEVEL}');
       _summary.setBloodOxygenLevel(readings);
     }
     if (patient.latestRecord?.rESPIRATORYRATE != null &&
         patient.latestRecord!.rESPIRATORYRATE!.isNotEmpty) {
-      print(
-          "latest respiratory rate: ${patient.latestRecord!.rESPIRATORYRATE!}");
+      if (kDebugMode) {
+        print(
+            "latest respiratory rate: ${patient.latestRecord!.rESPIRATORYRATE!}");
+      }
       final readings = await getVitalSign(
           '/patients/${patient.id}/tests/${patient.latestRecord!.rESPIRATORYRATE}');
       _summary.setRespiratoryRate(readings);
     }
     if (patient.latestRecord?.hEARTBEATRATE != null &&
         patient.latestRecord!.hEARTBEATRATE!.isNotEmpty) {
-      print("latest heartbeat rate: ${patient.latestRecord!.hEARTBEATRATE!}");
+      if (kDebugMode) {
+        print("latest heartbeat rate: ${patient.latestRecord!.hEARTBEATRATE!}");
+      }
       final readings = await getVitalSign(
           '/patients/${patient.id}/tests/${patient.latestRecord!.hEARTBEATRATE}');
       _summary.setHeartBeatRate(readings);

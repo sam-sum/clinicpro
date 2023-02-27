@@ -13,16 +13,16 @@ class Response {
     if (json['data'] != null) {
       data = <Patient>[];
       json['data'].forEach((v) {
-        data!.add(new Patient.fromJson(v));
+        data!.add(Patient.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['success'] = this.success;
-    data['status'] = this.status;
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['success'] = success;
+    data['status'] = status;
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
@@ -119,32 +119,32 @@ class Patient {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.latestRecord != null) {
-      data['latestRecord'] = this.latestRecord!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    if (latestRecord != null) {
+      data['latestRecord'] = latestRecord!.toJson();
     }
     //data['_id'] = this.sId;
-    data['id'] = this.id;
-    data['idCardNumber'] = this.idCardNumber;
-    data['firstName'] = this.firstName;
-    data['lastName'] = this.lastName;
-    data['gender'] = this.gender;
-    data['bedNumber'] = this.bedNumber;
-    data['dateOfBirth'] = this.dateOfBirth;
-    data['height'] = this.height;
-    data['weight'] = this.weight;
-    data['photoUrl'] = this.photoUrl;
-    data['phoneNumber'] = this.phoneNumber;
-    data['address'] = this.address;
-    data['postalCode'] = this.postalCode;
-    data['medicalAllergies'] = this.medicalAllergies;
-    data['disabled'] = this.disabled;
+    data['id'] = id;
+    data['idCardNumber'] = idCardNumber;
+    data['firstName'] = firstName;
+    data['lastName'] = lastName;
+    data['gender'] = gender;
+    data['bedNumber'] = bedNumber;
+    data['dateOfBirth'] = dateOfBirth;
+    data['height'] = height;
+    data['weight'] = weight;
+    data['photoUrl'] = photoUrl;
+    data['phoneNumber'] = phoneNumber;
+    data['address'] = address;
+    data['postalCode'] = postalCode;
+    data['medicalAllergies'] = medicalAllergies;
+    data['disabled'] = disabled;
     // data['createdAt'] = this.createdAt;
     // data['updatedAt'] = this.updatedAt;
     // data['__v'] = this.iV;
-    data['medicalNotes'] = this.medicalNotes;
-    data['doctor'] = this.doctor;
-    data['email'] = this.email;
+    data['medicalNotes'] = medicalNotes;
+    data['doctor'] = doctor;
+    data['email'] = email;
     return data;
   }
 }
@@ -169,11 +169,11 @@ class LatestRecord {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['BLOOD_PRESSURE'] = this.bLOODPRESSURE;
-    data['HEARTBEAT_RATE'] = this.hEARTBEATRATE;
-    data['BLOOD_OXYGEN_LEVEL'] = this.bLOODOXYGENLEVEL;
-    data['RESPIRATORY_RATE'] = this.rESPIRATORYRATE;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['BLOOD_PRESSURE'] = bLOODPRESSURE;
+    data['HEARTBEAT_RATE'] = hEARTBEATRATE;
+    data['BLOOD_OXYGEN_LEVEL'] = bLOODOXYGENLEVEL;
+    data['RESPIRATORY_RATE'] = rESPIRATORYRATE;
     return data;
   }
 }

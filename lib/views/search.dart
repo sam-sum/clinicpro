@@ -5,7 +5,7 @@ import 'package:clinicpro/utilities/styles.dart';
 import 'package:clinicpro/models/patient_model.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import '../providers/Patients.dart';
+import '../providers/patients.dart';
 import '../widgets/simple_dialogue.dart';
 
 class Search extends StatefulWidget {
@@ -19,12 +19,15 @@ class _SearchState extends State<Search> {
   var _isInit = true;
   var _isLoading = false;
 
-  List<Patient> patientList = [];
-  List<Patient> filterPatientList = [];
+  List<Patient> _patientList = [];
+  List<Patient> _filterPatientList = [];
 
-  TextEditingController _firstNameFieldController = TextEditingController();
-  TextEditingController _lastNameFieldController = TextEditingController();
-  TextEditingController _patientIdFieldController = TextEditingController();
+  final TextEditingController _firstNameFieldController =
+      TextEditingController();
+  final TextEditingController _lastNameFieldController =
+      TextEditingController();
+  final TextEditingController _patientIdFieldController =
+      TextEditingController();
 
   String? _firstNameField;
   String? _lastNameField;
@@ -51,25 +54,28 @@ class _SearchState extends State<Search> {
   }
 
   void filterPatient() {
-    filterPatientList = patientList;
-    if (_firstNameField != null && _firstNameField!.isNotEmpty)
-      filterPatientList = filterPatientList
+    _filterPatientList = _patientList;
+    if (_firstNameField != null && _firstNameField!.isNotEmpty) {
+      _filterPatientList = _filterPatientList
           .where((element) => element.firstName!
               .toLowerCase()
               .contains(_firstNameField!.toLowerCase()))
           .toList();
-    if (_lastNameField != null && _lastNameField!.isNotEmpty)
-      filterPatientList = filterPatientList
+    }
+    if (_lastNameField != null && _lastNameField!.isNotEmpty) {
+      _filterPatientList = _filterPatientList
           .where((element) => element.lastName!
               .toLowerCase()
               .contains(_lastNameField!.toLowerCase()))
           .toList();
-    if (_patientIdField != null && _patientIdField!.isNotEmpty)
-      filterPatientList = filterPatientList
+    }
+    if (_patientIdField != null && _patientIdField!.isNotEmpty) {
+      _filterPatientList = _filterPatientList
           .where((element) => element.idCardNumber!
               .toLowerCase()
               .contains(_patientIdField!.toLowerCase()))
           .toList();
+    }
   }
 
   @override
@@ -109,7 +115,7 @@ class _SearchState extends State<Search> {
   @override
   Widget build(BuildContext context) {
     //final patientsData = Provider.of<Patients>(context);
-    patientList = Provider.of<Patients>(context).patients;
+    _patientList = Provider.of<Patients>(context).patients;
     filterPatient();
 
     return Material(
@@ -152,7 +158,7 @@ class _SearchState extends State<Search> {
                         hintText: 'First Name',
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 5,
                     ),
                     TextField(
@@ -184,7 +190,7 @@ class _SearchState extends State<Search> {
                         hintText: 'Last Name',
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 5,
                     ),
                     TextField(
@@ -216,16 +222,16 @@ class _SearchState extends State<Search> {
                         hintText: 'Patient\'s ID',
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 15,
                     ),
                     Expanded(
                       child: ListView.builder(
                           scrollDirection: Axis.vertical,
                           shrinkWrap: true,
-                          itemCount: filterPatientList.length,
+                          itemCount: _filterPatientList.length,
                           itemBuilder: ((context, index) {
-                            var item = filterPatientList[index];
+                            var item = _filterPatientList[index];
                             return InkWell(
                               onTap: () {
                                 Navigator.pushNamed(
@@ -235,7 +241,7 @@ class _SearchState extends State<Search> {
                               child: Card(
                                 elevation: 4,
                                 child: Padding(
-                                  padding: EdgeInsets.all(15),
+                                  padding: const EdgeInsets.all(15),
                                   child: Column(
                                     children: [
                                       Row(
@@ -264,24 +270,22 @@ class _SearchState extends State<Search> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  item.firstName! +
-                                                      ' ' +
-                                                      item.lastName!,
+                                                  '${item.firstName!} ${item.lastName!}',
                                                 ),
                                                 Text(
-                                                  'Gender : ' + item.gender!,
+                                                  'Gender : ${item.gender!}',
                                                 ),
                                                 Row(
                                                   mainAxisSize:
                                                       MainAxisSize.min,
                                                   children: [
-                                                    FaIcon(
+                                                    const FaIcon(
                                                       FontAwesomeIcons
                                                           .addressCard,
                                                       size: 15,
                                                     ),
                                                     Text(
-                                                      ' #' + item.idCardNumber!,
+                                                      ' #${item.idCardNumber!}',
                                                     ),
                                                   ],
                                                 )
@@ -295,8 +299,8 @@ class _SearchState extends State<Search> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Container(),
-                                                item.disabled == 'true'
-                                                    ? FaIcon(
+                                                item.disabled == true
+                                                    ? const FaIcon(
                                                         FontAwesomeIcons
                                                             .wheelchair,
                                                         size: 15,
@@ -306,21 +310,19 @@ class _SearchState extends State<Search> {
                                                   mainAxisSize:
                                                       MainAxisSize.min,
                                                   children: [
-                                                    FaIcon(
+                                                    const FaIcon(
                                                       FontAwesomeIcons.bed,
                                                       size: 15,
                                                     ),
                                                     Text(
-                                                      ' ' +
-                                                          item.bedNumber!
-                                                              .toUpperCase(),
+                                                      ' ${item.bedNumber!.toUpperCase()}',
                                                     ),
                                                   ],
                                                 )
                                               ],
                                             ),
                                           ),
-                                          Expanded(
+                                          const Expanded(
                                             flex: 1,
                                             child: FaIcon(
                                               FontAwesomeIcons.ellipsisVertical,

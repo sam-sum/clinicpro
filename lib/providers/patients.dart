@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../models/patient_model.dart';
 import '../models/vital_sign_model.dart';
@@ -184,8 +184,10 @@ class Patients with ChangeNotifier {
         }
       }
       notifyListeners();
-      for (var item in filteredPatients) {
-        print("${item.id}|${item.firstName}|${item.lastName}|");
+      if (kDebugMode) {
+        for (var item in filteredPatients) {
+          print("${item.id}|${item.firstName}|${item.lastName}|");
+        }
       }
       return filteredPatients;
     } catch (error) {
@@ -244,6 +246,8 @@ class Patients with ChangeNotifier {
             } catch (_) {}
           }
         }
+        break;
+      case FilterOp.nop:
         break;
     }
     return ids.toList();

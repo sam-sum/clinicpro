@@ -5,7 +5,7 @@ import 'package:clinicpro/models/patient_model.dart';
 import 'package:provider/provider.dart';
 import '../assets/enum_filter_op.dart';
 import '../assets/enum_gender_selection.dart';
-import '../providers/Patients.dart';
+import '../providers/patients.dart';
 
 class OverviewDemo extends StatefulWidget {
   const OverviewDemo({Key? key}) : super(key: key);

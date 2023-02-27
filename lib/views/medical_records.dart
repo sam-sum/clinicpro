@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import '../models/vital_sign_model.dart';
-import '../providers/Vital_signs.dart';
+import '../providers/vital_signs.dart';
 import '../widgets/simple_dialogue.dart';
 import '../widgets/stateless_button.dart';
 import '../assets/constants.dart' as constants;
@@ -470,7 +470,8 @@ class _MedicalRecordsState extends State<MedicalRecords>
             return AlertDialog(
               shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(15.0))),
-              title: const Center(child: Text('Edit Record')),
+              title:
+                  Center(child: Text(isAddMode ? 'Add Record' : 'Edit Record')),
               titleTextStyle: const TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,

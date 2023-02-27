@@ -1,4 +1,4 @@
-import 'package:clinicpro/providers/Vital_signs.dart';
+import 'package:clinicpro/providers/vital_signs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -7,7 +7,7 @@ import 'package:clinicpro/utilities/styles.dart';
 import 'package:clinicpro/models/patient_model.dart';
 import 'package:provider/provider.dart';
 import '../models/vital_sign_latest_model.dart';
-import '../providers/Patients.dart';
+import '../providers/patients.dart';
 import '../widgets/simple_dialogue.dart';
 import '../widgets/stateless_button.dart';
 import 'medical_records.dart';
@@ -72,6 +72,18 @@ class _PatientDetailsState extends State<PatientDetails> {
     }
     _isInit = false;
     super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    _firstNameFieldController.dispose();
+    _lastNameFieldController.dispose();
+    _doctorFieldController.dispose();
+    _noteFieldController.dispose();
+    _addressFieldController.dispose();
+    _postalCodeFieldController.dispose();
+    _phoneFieldController.dispose();
+    super.dispose();
   }
 
   Future<void> _displayNameInputDialog(BuildContext context) async {
