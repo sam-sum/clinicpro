@@ -1,6 +1,6 @@
-import 'package:clinicpro/providers/Vital_signs.dart';
+import 'package:clinicpro/providers/vital_signs.dart';
 import 'package:flutter/material.dart';
-import 'package:clinicpro/providers/Patients.dart';
+import 'package:clinicpro/providers/patients.dart';
 import 'package:clinicpro/utilities/styles.dart';
 import 'package:provider/provider.dart';
 import 'widgets/bottom_nav.dart';

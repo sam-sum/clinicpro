@@ -7,7 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import '../assets/enum_filter_op.dart';
 import '../assets/enum_gender_selection.dart';
-import '../providers/Patients.dart';
+import '../providers/patients.dart';
 import '../utilities/screen_size.dart';
 import '../widgets/stateless_button.dart';
 
@@ -24,30 +24,35 @@ class _OverviewState extends State<Overview> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  TextEditingController _upperPressureFieldController = TextEditingController();
-  TextEditingController _lowerPressureFieldController = TextEditingController();
-  TextEditingController _oxygenLevelFieldController = TextEditingController();
-  TextEditingController _respiratoryRateFieldController =
+  final TextEditingController _upperPressureFieldController =
       TextEditingController();
-  TextEditingController _heartBeatRateFieldController = TextEditingController();
+  final TextEditingController _lowerPressureFieldController =
+      TextEditingController();
+  final TextEditingController _oxygenLevelFieldController =
+      TextEditingController();
+  final TextEditingController _respiratoryRateFieldController =
+      TextEditingController();
+  final TextEditingController _heartBeatRateFieldController =
+      TextEditingController();
 
   List<Patient> _filteredPatients = [];
   List<Patient> _patients = [];
 
   List<DropdownMenuItem<FilterOp>> get _dropFilterOp {
     List<DropdownMenuItem<FilterOp>> menuItems = [
-      DropdownMenuItem(child: Text("Greater Than"), value: FilterOp.greater),
-      DropdownMenuItem(child: Text("Equal"), value: FilterOp.equal),
-      DropdownMenuItem(child: Text("Less Than"), value: FilterOp.less),
+      const DropdownMenuItem(
+          value: FilterOp.greater, child: Text("Greater Than")),
+      const DropdownMenuItem(value: FilterOp.equal, child: Text("Equal")),
+      const DropdownMenuItem(value: FilterOp.less, child: Text("Less Than")),
     ];
     return menuItems;
   }
 
   List<DropdownMenuItem<FilterGender>> get _dropFilterGender {
     List<DropdownMenuItem<FilterGender>> menuItems = [
-      DropdownMenuItem(child: Text("Both"), value: FilterGender.both),
-      DropdownMenuItem(child: Text("Male"), value: FilterGender.male),
-      DropdownMenuItem(child: Text("Female"), value: FilterGender.female),
+      const DropdownMenuItem(value: FilterGender.both, child: Text("Both")),
+      const DropdownMenuItem(value: FilterGender.male, child: Text("Male")),
+      const DropdownMenuItem(value: FilterGender.female, child: Text("Female")),
     ];
     return menuItems;
   }
@@ -145,8 +150,18 @@ class _OverviewState extends State<Overview> {
   }
 
   @override
+  void dispose() {
+    _upperPressureFieldController.dispose();
+    _lowerPressureFieldController.dispose();
+    _oxygenLevelFieldController.dispose();
+    _respiratoryRateFieldController.dispose();
+    _heartBeatRateFieldController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final _patients = Provider.of<Patients>(context).patients;
+    _patients = Provider.of<Patients>(context).patients;
     return Material(
         color: Styles.backgroundColor,
         child: _isLoading
@@ -160,11 +175,11 @@ class _OverviewState extends State<Overview> {
                   children: <Widget>[
                     Row(
                       children: [
-                        Text(
+                        const Text(
                           'All Patient',
                           style: TextStyle(fontSize: 18),
                         ),
-                        Spacer(),
+                        const Spacer(),
                         InkWell(
                           onTap: () {
                             showModalBottomSheet(
@@ -177,7 +192,7 @@ class _OverviewState extends State<Overview> {
                               ),
                               builder: (BuildContext context) {
                                 // UDE : SizedBox instead of Container for whitespaces
-                                return FilterBottom(context);
+                                return filterBottom(context);
                               },
                             );
                           },
@@ -189,7 +204,7 @@ class _OverviewState extends State<Overview> {
                         )
                       ],
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 15,
                     ),
                     Expanded(
@@ -212,7 +227,7 @@ class _OverviewState extends State<Overview> {
                               child: Card(
                                 elevation: 4,
                                 child: Padding(
-                                  padding: EdgeInsets.all(15),
+                                  padding: const EdgeInsets.all(15),
                                   child: Column(
                                     children: [
                                       Row(
@@ -241,24 +256,22 @@ class _OverviewState extends State<Overview> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  item.firstName! +
-                                                      ' ' +
-                                                      item.lastName!,
+                                                  '${item.firstName!} ${item.lastName!}',
                                                 ),
                                                 Text(
-                                                  'Gender : ' + item.gender!,
+                                                  'Gender : ${item.gender!}',
                                                 ),
                                                 Row(
                                                   mainAxisSize:
                                                       MainAxisSize.min,
                                                   children: [
-                                                    FaIcon(
+                                                    const FaIcon(
                                                       FontAwesomeIcons
                                                           .addressCard,
                                                       size: 15,
                                                     ),
                                                     Text(
-                                                      ' #' + item.idCardNumber!,
+                                                      ' #${item.idCardNumber!}',
                                                     ),
                                                   ],
                                                 )
@@ -272,8 +285,8 @@ class _OverviewState extends State<Overview> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Container(),
-                                                item.disabled == 'true'
-                                                    ? FaIcon(
+                                                item.disabled == true
+                                                    ? const FaIcon(
                                                         FontAwesomeIcons
                                                             .wheelchair,
                                                         size: 15,
@@ -283,21 +296,19 @@ class _OverviewState extends State<Overview> {
                                                   mainAxisSize:
                                                       MainAxisSize.min,
                                                   children: [
-                                                    FaIcon(
+                                                    const FaIcon(
                                                       FontAwesomeIcons.bed,
                                                       size: 15,
                                                     ),
                                                     Text(
-                                                      ' ' +
-                                                          item.bedNumber!
-                                                              .toUpperCase(),
+                                                      ' ${item.bedNumber!.toUpperCase()}',
                                                     ),
                                                   ],
                                                 )
                                               ],
                                             ),
                                           ),
-                                          Expanded(
+                                          const Expanded(
                                             flex: 1,
                                             child: FaIcon(
                                               FontAwesomeIcons.ellipsisVertical,
@@ -318,7 +329,7 @@ class _OverviewState extends State<Overview> {
               ));
   }
 
-  Widget FilterBottom(BuildContext context) {
+  Widget filterBottom(BuildContext context) {
     return SizedBox(
       child: Padding(
         padding: const EdgeInsets.all(40.0),
@@ -328,13 +339,13 @@ class _OverviewState extends State<Overview> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text('Upper Blood Pressure'),
+              const Text('Upper Blood Pressure'),
               Row(
                 children: [
                   Expanded(
                     child: DropdownButtonFormField<FilterOp>(
                       value: _opUpperPressure,
-                      style: TextStyle(color: Colors.black, fontSize: 16),
+                      style: const TextStyle(color: Colors.black, fontSize: 16),
                       onChanged: (FilterOp? value) {
                         // This is called when the user selects an item.
                         setState(() {
@@ -348,7 +359,7 @@ class _OverviewState extends State<Overview> {
                       ),
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   ),
                   Expanded(
@@ -356,7 +367,7 @@ class _OverviewState extends State<Overview> {
                       textAlign: TextAlign.center,
                       controller: _upperPressureFieldController,
                       keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         isDense: true,
                         contentPadding: EdgeInsets.all(10),
                         border: OutlineInputBorder(),
@@ -368,13 +379,13 @@ class _OverviewState extends State<Overview> {
                   ),
                 ],
               ),
-              Text('Lower Blood Pressure'),
+              const Text('Lower Blood Pressure'),
               Row(
                 children: [
                   Expanded(
                     child: DropdownButtonFormField<FilterOp>(
                       value: _opLowerPressure,
-                      style: TextStyle(color: Colors.black, fontSize: 16),
+                      style: const TextStyle(color: Colors.black, fontSize: 16),
                       onChanged: (FilterOp? value) {
                         // This is called when the user selects an item.
                         setState(() {
@@ -388,7 +399,7 @@ class _OverviewState extends State<Overview> {
                       ),
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   ),
                   Expanded(
@@ -396,7 +407,7 @@ class _OverviewState extends State<Overview> {
                       textAlign: TextAlign.center,
                       controller: _lowerPressureFieldController,
                       keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         isDense: true,
                         contentPadding: EdgeInsets.all(10),
                         border: OutlineInputBorder(),
@@ -408,13 +419,13 @@ class _OverviewState extends State<Overview> {
                   ),
                 ],
               ),
-              Text('Blood Oxygen Level'),
+              const Text('Blood Oxygen Level'),
               Row(
                 children: [
                   Expanded(
                     child: DropdownButtonFormField<FilterOp>(
                       value: _opOxygenLevel,
-                      style: TextStyle(color: Colors.black, fontSize: 16),
+                      style: const TextStyle(color: Colors.black, fontSize: 16),
                       onChanged: (FilterOp? value) {
                         // This is called when the user selects an item.
                         setState(() {
@@ -428,7 +439,7 @@ class _OverviewState extends State<Overview> {
                       ),
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   ),
                   Expanded(
@@ -436,7 +447,7 @@ class _OverviewState extends State<Overview> {
                       textAlign: TextAlign.center,
                       controller: _oxygenLevelFieldController,
                       keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         isDense: true,
                         contentPadding: EdgeInsets.all(10),
                         border: OutlineInputBorder(),
@@ -448,13 +459,13 @@ class _OverviewState extends State<Overview> {
                   ),
                 ],
               ),
-              Text('Respiratory Rate'),
+              const Text('Respiratory Rate'),
               Row(
                 children: [
                   Expanded(
                     child: DropdownButtonFormField<FilterOp>(
                       value: _opRespiratoryRate,
-                      style: TextStyle(color: Colors.black, fontSize: 16),
+                      style: const TextStyle(color: Colors.black, fontSize: 16),
                       onChanged: (FilterOp? value) {
                         // This is called when the user selects an item.
                         setState(() {
@@ -468,7 +479,7 @@ class _OverviewState extends State<Overview> {
                       ),
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   ),
                   Expanded(
@@ -476,7 +487,7 @@ class _OverviewState extends State<Overview> {
                       textAlign: TextAlign.center,
                       controller: _respiratoryRateFieldController,
                       keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         isDense: true,
                         contentPadding: EdgeInsets.all(10),
                         border: OutlineInputBorder(),
@@ -488,13 +499,13 @@ class _OverviewState extends State<Overview> {
                   ),
                 ],
               ),
-              Text('Heart Beat Rate'),
+              const Text('Heart Beat Rate'),
               Row(
                 children: [
                   Expanded(
                     child: DropdownButtonFormField<FilterOp>(
                       value: _opHeartBeatRate,
-                      style: TextStyle(color: Colors.black, fontSize: 16),
+                      style: const TextStyle(color: Colors.black, fontSize: 16),
                       onChanged: (FilterOp? value) {
                         // This is called when the user selects an item.
                         setState(() {
@@ -508,7 +519,7 @@ class _OverviewState extends State<Overview> {
                       ),
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   ),
                   Expanded(
@@ -516,7 +527,7 @@ class _OverviewState extends State<Overview> {
                       textAlign: TextAlign.center,
                       controller: _heartBeatRateFieldController,
                       keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         isDense: true,
                         contentPadding: EdgeInsets.all(10),
                         border: OutlineInputBorder(),
@@ -528,13 +539,13 @@ class _OverviewState extends State<Overview> {
                   ),
                 ],
               ),
-              Text('Gender'),
+              const Text('Gender'),
               Row(
                 children: [
                   Expanded(
                     child: DropdownButtonFormField<FilterGender>(
                       value: _gender,
-                      style: TextStyle(color: Colors.black, fontSize: 16),
+                      style: const TextStyle(color: Colors.black, fontSize: 16),
                       onChanged: (FilterGender? value) {
                         // This is called when the user selects an item.
                         setState(() {
@@ -550,7 +561,7 @@ class _OverviewState extends State<Overview> {
                   ),
                 ],
               ),
-              SizedBox(height: 5),
+              const SizedBox(height: 5),
               Row(
                 children: [
                   Expanded(
@@ -589,7 +600,7 @@ class _OverviewState extends State<Overview> {
                             ),
                           ),
                         )
-                      : SizedBox.shrink(),
+                      : const SizedBox.shrink(),
                 ],
               ),
             ],
