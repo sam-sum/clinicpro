@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        title: 'Flutter Demo',
+        title: 'Clinic Pro',
         theme: ThemeData(
           primaryColor: Styles.primaryColor,
           backgroundColor: Styles.backgroundColor,
