@@ -10,8 +10,7 @@ import '../assets/enum_test_category.dart';
 import '../assets/enum_gender_selection.dart';
 
 class Patients with ChangeNotifier {
-  // final String HOST_URL = 'rest-clinicpro.onrender.com';
-  final String HOST_URL = 'gp5.onrender.com';
+  static const String HOST_URL = 'rest-clinicpro.onrender.com';
 
   List<Patient> _patients = [];
 
@@ -28,28 +27,52 @@ class Patients with ChangeNotifier {
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body)['data'] as dynamic;
-      //print(extractedData);
       final List<Patient> loadedPatients = [];
 
       extractedData.forEach((patientData) {
-        //print(patientData);
         loadedPatients.add(Patient.fromJson(patientData));
       });
       _patients = loadedPatients;
-      //print(_patients[0].id);
       notifyListeners();
     } catch (error) {
       rethrow;
     }
   }
 
-  Future<void> updatePatient(String id, Patient newPatient) async {
-    await Future.delayed(const Duration(seconds: 3));
+  Future<Patient> updatePatient(Patient updatedPatient) async {
+    var patientJson = updatedPatient.toJson();
+    patientJson.removeWhere((key, value) => value == null);
+
+    final url = Uri.https(HOST_URL, '/patients');
+    final response = await http.patch(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(patientJson),
+    );
+    if (response.statusCode == 200) {
+      if (jsonDecode(response.body)['success'] == true) {
+        // update the current master list with the updated patient
+        var newPatient = Patient.fromJson(jsonDecode(response.body)['data']);
+        final int index = _patients
+            .indexWhere(((patient1) => patient1.id == updatedPatient.id));
+        if (index != -1) {
+          _patients[index] = newPatient;
+        }
+        notifyListeners();
+        return newPatient;
+      } else {
+        throw Exception(jsonDecode(response.body)['message']);
+      }
+    } else {
+      throw Exception(jsonDecode(response.body)['message']);
+    }
   }
 
   Future<Patient> createPatient(Patient patient) async {
-    //final url = Uri.https(HOST_URL, '/patients');
-    final url = Uri.https('rest-clinicpro.onrender.com', '/patients');
+    final url = Uri.https(HOST_URL, '/patients');
+    //final url = Uri.https('rest-clinicpro.onrender.com', '/patients');
     final response = await http.post(
       url,
       headers: <String, String>{
@@ -60,7 +83,10 @@ class Patients with ChangeNotifier {
 
     if (response.statusCode == 200) {
       if (jsonDecode(response.body)['success'] == true) {
-        return Patient.fromJson(jsonDecode(response.body));
+        var newPatient = Patient.fromJson(jsonDecode(response.body));
+        _patients.add(newPatient);
+        notifyListeners();
+        return newPatient;
       } else {
         throw Exception(jsonDecode(response.body)['message']);
       }

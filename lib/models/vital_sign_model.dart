@@ -1,5 +1,5 @@
 class VitalSign {
-  String? sId;
+  //String? sId;
   String? id;
   String? patientId;
   String? nurseName;
@@ -9,10 +9,10 @@ class VitalSign {
   bool? isValid;
   String? createdAt;
   String? updatedAt;
-  int? iV;
+  //int? iV;
 
   VitalSign({
-    this.sId,
+    //this.sId,
     this.id,
     this.patientId,
     this.nurseName,
@@ -22,11 +22,11 @@ class VitalSign {
     this.isValid,
     this.createdAt,
     this.updatedAt,
-    this.iV,
+    //this.iV,
   });
 
   VitalSign.fromJson(Map<String, dynamic> json) {
-    sId = json['_id'];
+    //sId = json['_id'];
     id = json['id'];
     patientId = json['patientId'];
     nurseName = json['nurseName'];
@@ -36,13 +36,13 @@ class VitalSign {
     isValid = json['isValid'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
-    iV = json['__v'];
+    //iV = json['__v'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
 
-    data['_id'] = sId;
+    //data['_id'] = sId;
     data['id'] = id;
     data['patientId'] = patientId;
     data['nurseName'] = nurseName;

@@ -7,8 +7,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
 import '../models/vital_sign_model.dart';
+import '../providers/patients.dart';
 import '../providers/vital_signs.dart';
 import '../widgets/simple_dialogue.dart';
 import '../widgets/stateless_button.dart';
@@ -26,21 +26,17 @@ class MedicalRecords extends StatefulWidget {
 
 class _MedicalRecordsState extends State<MedicalRecords>
     with SingleTickerProviderStateMixin {
-  late SharedPreferences prefs;
+  late Patients _patientsProvider;
+  late SharedPreferences _prefs;
   late String _nurseName;
   late Patient _patient;
   bool _isInit = true;
   bool _isLoading = false;
+  bool _isFirstRun = true;
 
   // Tab controls
   late TabController _tabController;
   int _activeIndex = 0;
-
-  // Vital signs records master lists
-  late List<VitalSign> _bloodPressureRecords;
-  late List<VitalSign> _heatBeatRateRecords;
-  late List<VitalSign> _respiratoryRateRecords;
-  late List<VitalSign> _bloodOxygenLevelRecords;
 
   // Use with inputDialog
   TextEditingController _field1Controller = TextEditingController();
@@ -101,7 +97,12 @@ class _MedicalRecordsState extends State<MedicalRecords>
 
   @override
   Future<void> didChangeDependencies() async {
-    _patient = ModalRoute.of(context)!.settings.arguments as Patient;
+    if (_isFirstRun) {
+      // To prevent the _patient be overwritten after the update
+      _patient = ModalRoute.of(context)!.settings.arguments as Patient;
+      _isFirstRun = false;
+    }
+    _patientsProvider = Provider.of<Patients>(context);
 
     if (_isInit) {
       setState(() {
@@ -124,8 +125,8 @@ class _MedicalRecordsState extends State<MedicalRecords>
           _isLoading = false;
         });
       });
-      prefs = await SharedPreferences.getInstance();
-      _nurseName = prefs.getString(constants.LOGIN_USER) ?? constants.ADMIN;
+      _prefs = await SharedPreferences.getInstance();
+      _nurseName = _prefs.getString(constants.LOGIN_USER) ?? constants.ADMIN;
       if (kDebugMode) {
         print("login nurse name: $_nurseName");
       }
@@ -136,102 +137,101 @@ class _MedicalRecordsState extends State<MedicalRecords>
 
   @override
   Widget build(BuildContext context) {
-    _bloodPressureRecords = Provider.of<VitalSigns>(context)
-        .getBloodPressureRecordsForPatient(_patient.id!);
-    _heatBeatRateRecords = Provider.of<VitalSigns>(context)
-        .getHeatBeatRateRecordsForPatient(_patient.id!);
-    _respiratoryRateRecords = Provider.of<VitalSigns>(context)
-        .getRespiratoryRateRecordsForPatient(_patient.id!);
-    _bloodOxygenLevelRecords = Provider.of<VitalSigns>(context)
-        .getBloodOxygenLevelRecordsForPatient(_patient.id!);
-
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Styles.backgroundColor,
-        actions: <Widget>[
-          IconButton(
-            icon: const Padding(
-              padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
-              child: Icon(
-                Icons.add,
-                color: Colors.black,
+    return WillPopScope(
+      onWillPop: () {
+        Navigator.pop(context, _patient);
+        return Future(() => false);
+      },
+      child: Consumer<VitalSigns>(builder: (context, provider, _) {
+        return Scaffold(
+          appBar: AppBar(
+            backgroundColor: Styles.backgroundColor,
+            actions: <Widget>[
+              IconButton(
+                icon: const Padding(
+                  padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
+                  child: Icon(
+                    Icons.add,
+                    color: Colors.black,
+                  ),
+                ),
+                tooltip: 'Add a new record',
+                onPressed: () {
+                  VitalSign newReading = createEmptyRecord();
+                  _displayInputDialog(context, newReading, true);
+                },
+              ),
+            ],
+            title: Text(
+              'Vital Signs Records',
+              style: TextStyle(
+                color: Styles.blackColor,
               ),
             ),
-            tooltip: 'Add a new record',
-            onPressed: () {
-              VitalSign newReading = createEmptyRecord();
-              _displayInputDialog(context, newReading, true);
-            },
           ),
-        ],
-        title: Text(
-          'Vital Signs Records',
-          style: TextStyle(
-            color: Styles.blackColor,
-          ),
-        ),
-      ),
-      body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : Column(
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          body: _isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(),
+                )
+              : Column(
                   children: <Widget>[
-                    Expanded(flex: 6, child: _nameCard(context)),
-                    _patient.photoUrl == null
-                        ? const SizedBox(
-                            width: 110,
-                          )
-                        : Container(
-                            width: 110,
-                            margin: const EdgeInsets.fromLTRB(22, 5, 22, 5),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Image(
-                                image: NetworkImage(_patient.photoUrl!),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Expanded(flex: 6, child: _nameCard(context)),
+                        _patient.photoUrl == null
+                            ? const SizedBox(
+                                width: 110,
+                              )
+                            : Container(
+                                width: 110,
+                                margin: const EdgeInsets.fromLTRB(22, 5, 22, 5),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Image(
+                                    image: NetworkImage(_patient.photoUrl!),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                  ],
-                ),
-                // the tab bar with 4 items
-                SizedBox(
-                  height: 50,
-                  child: AppBar(
-                    backgroundColor: Colors.white,
-                    bottom: TabBar(
-                      unselectedLabelColor: Colors.grey,
-                      labelColor: Colors.black,
-                      isScrollable: true,
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      indicatorColor: Colors.lightBlue,
-                      controller: _tabController,
-                      tabs: const [
-                        Tab(text: 'Blood Pressure'),
-                        Tab(text: 'Heart Beat Rate'),
-                        Tab(text: 'Respiratory Rate'),
-                        Tab(text: 'Blood Oxygen Level'),
                       ],
                     ),
-                  ),
+                    // the tab bar with 4 items
+                    SizedBox(
+                      height: 50,
+                      child: AppBar(
+                        backgroundColor: Colors.white,
+                        bottom: TabBar(
+                          unselectedLabelColor: Colors.grey,
+                          labelColor: Colors.black,
+                          isScrollable: true,
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          indicatorColor: Colors.lightBlue,
+                          controller: _tabController,
+                          tabs: const [
+                            Tab(text: 'Blood Pressure'),
+                            Tab(text: 'Heart Beat Rate'),
+                            Tab(text: 'Respiratory Rate'),
+                            Tab(text: 'Blood Oxygen Level'),
+                          ],
+                        ),
+                      ),
+                    ),
+                    // create widgets for each tab bar here
+                    Expanded(
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: [
+                          _buildTab(context, provider.bloodPressureRecords),
+                          _buildTab(context, provider.heatBeatRateRecords),
+                          _buildTab(context, provider.respiratoryRateRecords),
+                          _buildTab(context, provider.bloodOxygenLevelRecords),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                // create widgets for each tab bar here
-                Expanded(
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: [
-                      _buildTab(context, TestCategory.BLOOD_PRESSURE),
-                      _buildTab(context, TestCategory.HEARTBEAT_RATE),
-                      _buildTab(context, TestCategory.RESPIRATORY_RATE),
-                      _buildTab(context, TestCategory.BLOOD_OXYGEN_LEVEL),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+        );
+      }),
     );
   }
 
@@ -296,24 +296,8 @@ class _MedicalRecordsState extends State<MedicalRecords>
     );
   }
 
-  Widget _buildTab(BuildContext context, TestCategory category) {
-    List<VitalSign> readings;
-    switch (category) {
-      case TestCategory.BLOOD_PRESSURE:
-        readings = _bloodPressureRecords;
-        break;
-      case TestCategory.HEARTBEAT_RATE:
-        readings = _heatBeatRateRecords;
-        break;
-      case TestCategory.RESPIRATORY_RATE:
-        readings = _respiratoryRateRecords;
-        break;
-      case TestCategory.BLOOD_OXYGEN_LEVEL:
-        readings = _bloodOxygenLevelRecords;
-        break;
-    }
+  Widget _buildTab(BuildContext context, List<VitalSign> readings) {
     final DateFormat formatter = DateFormat('yyyy-MM-dd h:mm a');
-
     return SingleChildScrollView(
       child: Container(
         padding: const EdgeInsets.all(10),
@@ -327,7 +311,6 @@ class _MedicalRecordsState extends State<MedicalRecords>
               elevation: 10.0,
               child: InkWell(
                 onTap: () {
-                  //print("record ID: ${readingOne.id}");
                   _displayInputDialog(context, readingOne, false);
                 },
                 child: Column(
@@ -404,10 +387,7 @@ class _MedicalRecordsState extends State<MedicalRecords>
   }
 
   VitalSign createEmptyRecord() {
-    var uuid = const Uuid();
     VitalSign newRec = VitalSign();
-    newRec.id = uuid.v4().toString();
-    //print("uuid: ${newRec.id}");
     newRec.patientId = _patient.id;
     newRec.nurseName = _nurseName;
     newRec.modifyDate = DateTime.now().toString();
@@ -429,7 +409,6 @@ class _MedicalRecordsState extends State<MedicalRecords>
         newRec.readings = "0";
         break;
     }
-    newRec.isValid = true;
     return newRec;
   }
 
@@ -588,7 +567,7 @@ class _MedicalRecordsState extends State<MedicalRecords>
                       });
                       if (_errorText1 == null && _errorText2 == null) {
                         record.readings = '$value1,$value2';
-                        _saveReadings();
+                        _saveReadings(isAddMode, record);
                         Navigator.pop(context);
                       }
                     } else {
@@ -598,7 +577,7 @@ class _MedicalRecordsState extends State<MedicalRecords>
                       });
                       if (_errorText1 == null) {
                         record.readings = value1.toString();
-                        _saveReadings();
+                        _saveReadings(isAddMode, record);
                         Navigator.pop(context);
                       }
                     }
@@ -610,14 +589,26 @@ class _MedicalRecordsState extends State<MedicalRecords>
         });
   }
 
-  Future<void> _saveReadings() async {
+  Future<void> _saveReadings(bool isAddMode, VitalSign record) async {
+    if (kDebugMode) {
+      print("schlog, _saveReadings(), isAddMode=$isAddMode");
+      print("schlog, _saveReadings(), record=${record.toJson()}");
+    }
     setState(() {
       _isLoading = true;
     });
     try {
-      //await Provider.of<XXXX>(context, listen: false)
-      //    .updateReadings(_reading.id!, _reading);
+      if (isAddMode) {
+        _patient = await Provider.of<VitalSigns>(context, listen: false)
+            .createVitalSign(_patientsProvider, _patient, record);
+      } else {
+        await Provider.of<VitalSigns>(context, listen: false)
+            .updateVitalSigns(record);
+      }
     } catch (error) {
+      if (kDebugMode) {
+        print(error);
+      }
       await showDialog(
         context: context,
         builder: (ctx) => const SimpleDialogue(

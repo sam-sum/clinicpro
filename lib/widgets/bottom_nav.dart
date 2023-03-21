@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:clinicpro/utilities/styles.dart';
 import 'package:clinicpro/views/overview.dart';
-import 'package:clinicpro/views/overview_demo.dart';
 import 'package:clinicpro/views/search.dart';
 import 'package:clinicpro/views/add_patient.dart';
 import 'package:clinicpro/utilities/iconly_bold.dart';
@@ -42,19 +41,7 @@ class _BottomNavState extends State<BottomNav> {
             color: Styles.blackColor,
           ),
         ),
-        actions: <Widget>[
-          // if (_selectedIndex == 2)
-          //   Padding(
-          //       padding: const EdgeInsets.only(right: 20.0),
-          //       child: GestureDetector(
-          //         onTap: () {},
-          //         child: const Icon(
-          //           Icons.save,
-          //           color: Colors.black,
-          //           size: 24,
-          //         ),
-          //       )),
-        ],
+        actions: const <Widget>[],
       ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),

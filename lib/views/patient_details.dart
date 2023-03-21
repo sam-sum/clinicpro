@@ -24,30 +24,43 @@ class PatientDetails extends StatefulWidget {
 class _PatientDetailsState extends State<PatientDetails> {
   late Patient _patient;
   // Use with _displayNameInputDialog
-  late TextEditingController _firstNameFieldController;
-  late TextEditingController _lastNameFieldController;
-  late TextEditingController _doctorFieldController;
+  TextEditingController _firstNameFieldController = TextEditingController();
+  TextEditingController _lastNameFieldController = TextEditingController();
+  TextEditingController _doctorFieldController = TextEditingController();
   String? valueFirstName;
   String? valueLastName;
   String? valueDoctor;
   // Use with _displayNoteInputDialog
-  late TextEditingController _noteFieldController;
+  TextEditingController _noteFieldController = TextEditingController();
   String? valueNote;
   //Use with _displayContactInputDialog
-  late TextEditingController _addressFieldController;
-  late TextEditingController _postalCodeFieldController;
-  late TextEditingController _phoneFieldController;
+  TextEditingController _addressFieldController = TextEditingController();
+  TextEditingController _postalCodeFieldController = TextEditingController();
+  TextEditingController _phoneFieldController = TextEditingController();
   String? valueAddress;
   String? valuePostalCode;
   int? valuePhone;
 
   bool _isInit = true;
   bool _isLoading = false;
+  bool _isFirstRun = true;
 
   @override
-  void didChangeDependencies() {
-    _patient = ModalRoute.of(context)!.settings.arguments as Patient;
+  Future<void> didChangeDependencies() async {
+    if (_isFirstRun) {
+      // To prevent the _patient be overwritten after the update
+      _patient = ModalRoute.of(context)!.settings.arguments as Patient;
+      _isFirstRun = false;
+    }
 
+    await refreshRemoteData();
+    super.didChangeDependencies();
+  }
+
+  Future<void> refreshRemoteData() async {
+    if (kDebugMode) {
+      print('Patient detail screen, working on patient ID: ${_patient.id}');
+    }
     if (_isInit) {
       setState(() {
         _isLoading = true;
@@ -56,7 +69,7 @@ class _PatientDetailsState extends State<PatientDetails> {
           .fetchLatestVitalSignsForPatient(_patient)
           .catchError((error) {
         if (kDebugMode) {
-          print('Get vital signs summary error: $error');
+          print('Patient detail screen, Get vital signs summary error: $error');
         }
         showDialog(
           context: context,
@@ -71,7 +84,6 @@ class _PatientDetailsState extends State<PatientDetails> {
       });
     }
     _isInit = false;
-    super.didChangeDependencies();
   }
 
   @override
@@ -182,10 +194,14 @@ class _PatientDetailsState extends State<PatientDetails> {
                 buttonText: 'Submit',
                 onPressed: () {
                   setState(() {
-                    _patient.firstName = valueFirstName ?? _patient.firstName;
-                    _patient.lastName = valueLastName ?? _patient.lastName;
-                    _patient.doctor = valueDoctor ?? _patient.doctor;
-                    _savePatient();
+                    var patientChangedName = Patient();
+                    patientChangedName.firstName =
+                        valueFirstName ?? _patient.firstName;
+                    patientChangedName.lastName =
+                        valueLastName ?? _patient.lastName;
+                    patientChangedName.doctor = valueDoctor ?? _patient.doctor;
+                    patientChangedName.id = _patient.id;
+                    _savePatient(patientChangedName);
                     Navigator.pop(context);
                   });
                 },
@@ -245,8 +261,11 @@ class _PatientDetailsState extends State<PatientDetails> {
                 buttonText: 'Submit',
                 onPressed: () {
                   setState(() {
-                    _patient.medicalNotes = valueNote ?? _patient.medicalNotes;
-                    _savePatient();
+                    var patientChangedNotes = Patient();
+                    patientChangedNotes.medicalNotes =
+                        valueNote ?? _patient.medicalNotes;
+                    patientChangedNotes.id = _patient.id;
+                    _savePatient(patientChangedNotes);
                     Navigator.pop(context);
                   });
                 },
@@ -358,11 +377,15 @@ class _PatientDetailsState extends State<PatientDetails> {
                 buttonText: 'Submit',
                 onPressed: () {
                   setState(() {
-                    _patient.address = valueAddress ?? _patient.address;
-                    _patient.postalCode =
+                    var patientChangedAddress = Patient();
+                    patientChangedAddress.address =
+                        valueAddress ?? _patient.address;
+                    patientChangedAddress.postalCode =
                         valuePostalCode ?? _patient.postalCode;
-                    _patient.phoneNumber = valuePhone ?? _patient.phoneNumber;
-                    _savePatient();
+                    patientChangedAddress.phoneNumber =
+                        valuePhone ?? _patient.phoneNumber;
+                    patientChangedAddress.id = _patient.id;
+                    _savePatient(patientChangedAddress);
                     Navigator.pop(context);
                   });
                 },
@@ -372,13 +395,16 @@ class _PatientDetailsState extends State<PatientDetails> {
         });
   }
 
-  Future<void> _savePatient() async {
+  Future<void> _savePatient(Patient updatedPatient) async {
     setState(() {
       _isLoading = true;
     });
     try {
       await Provider.of<Patients>(context, listen: false)
-          .updatePatient(_patient.id!, _patient);
+          .updatePatient(updatedPatient)
+          .then((value) {
+        _patient = value;
+      });
     } catch (error) {
       await showDialog(
         context: context,
@@ -394,9 +420,6 @@ class _PatientDetailsState extends State<PatientDetails> {
 
   @override
   Widget build(BuildContext context) {
-    final VitalSignLatest summaryData =
-        Provider.of<VitalSigns>(context).summary;
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Styles.backgroundColor,
@@ -440,7 +463,7 @@ class _PatientDetailsState extends State<PatientDetails> {
                           ],
                         ),
                         _notesCard(context),
-                        _examCard(context, summaryData),
+                        _examCard(context),
                         _addressCard(context),
                       ],
                     ),
@@ -565,62 +588,68 @@ class _PatientDetailsState extends State<PatientDetails> {
     );
   }
 
-  Widget _examCard(BuildContext context, VitalSignLatest summaryData) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      margin: const EdgeInsets.fromLTRB(25, 12, 25, 12),
-      elevation: 10.0,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.fromLTRB(10, 12, 10, 12),
-                child: Text(
-                  "Blood Pressure: ${summaryData.bloodPressure ?? 'No Record'}",
+  Widget _examCard(BuildContext context) {
+    //VitalSignLatest summaryData =
+    //    Provider.of<VitalSigns>(context, listen: false).summary;
+    return Consumer<VitalSigns>(builder: (context, provider, _) {
+      return Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        margin: const EdgeInsets.fromLTRB(25, 12, 25, 12),
+        elevation: 10.0,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 12, 10, 12),
+                  child: Text(
+                    "Blood Pressure: ${provider.summary.bloodPressure ?? 'No Record'}",
+                  ),
                 ),
-              ),
-              IconButton(
-                padding: const EdgeInsets.fromLTRB(0, 10, 5, 0),
-                icon: const FaIcon(
-                  FontAwesomeIcons.solidRectangleList,
-                  size: 15,
+                IconButton(
+                  padding: const EdgeInsets.fromLTRB(0, 10, 5, 0),
+                  icon: const FaIcon(
+                    FontAwesomeIcons.solidRectangleList,
+                    size: 15,
+                  ),
+                  onPressed: () async {
+                    _patient = await Navigator.pushNamed(
+                      context,
+                      MedicalRecords.routeName,
+                      arguments: _patient,
+                    ) as Patient;
+                    _isInit = true;
+                    await refreshRemoteData();
+                  },
                 ),
-                onPressed: () {
-                  Navigator.pushNamed(
-                    context,
-                    MedicalRecords.routeName,
-                    arguments: _patient,
-                  );
-                },
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 5, 10, 12),
+              child: Text(
+                "Blood Oxygen Level: ${provider.summary.bloodOxygenLevel ?? 'No Record'}",
               ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 5, 10, 12),
-            child: Text(
-              "Blood Oxygen Level: ${summaryData.bloodOxygenLevel ?? 'No Record'}",
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 5, 10, 12),
-            child: Text(
-              "Respiratory Rate: ${summaryData.respiratoryRate ?? 'No Record'}",
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 5, 10, 12),
+              child: Text(
+                "Respiratory Rate: ${provider.summary.respiratoryRate ?? 'No Record'}",
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 5, 10, 12),
-            child: Text(
-              "Heart Beat Rate: ${summaryData.heartBeatRate ?? 'No Record'}",
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 5, 10, 12),
+              child: Text(
+                "Heart Beat Rate: ${provider.summary.heartBeatRate ?? 'No Record'}",
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 
   Widget _addressCard(BuildContext context) {

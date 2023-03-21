@@ -1,12 +1,16 @@
 import 'dart:convert';
 
 import 'package:clinicpro/models/patient_model.dart';
+import 'package:clinicpro/providers/patients.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import '../assets/enum_test_category.dart';
 import '../models/vital_sign_model.dart';
 import '../models/vital_sign_latest_model.dart';
 
 class VitalSigns with ChangeNotifier {
+  static const String HOST_URL = 'rest-clinicpro.onrender.com';
+
   String _currentPatientId = '';
   final VitalSignLatest _summary = VitalSignLatest();
   List<VitalSign> _allVitalSignsForPatient = [];
@@ -23,79 +27,62 @@ class VitalSigns with ChangeNotifier {
     }
   }
 
-  List<VitalSign> getBloodPressureRecordsForPatient(String id) {
-    if (_currentPatientId == id) {
-      List<VitalSign> shortList = _allVitalSignsForPatient
-          .where((record) =>
-              record.category == 'BLOOD_PRESSURE' && record.isValid == true)
-          .toList();
-      //sort in date descending order
-      shortList.sort((a, b) {
-        return DateTime.parse(b.createdAt ?? '1971-01-01')
-            .compareTo(DateTime.parse(a.createdAt ?? '1971-01-01'));
-      });
-      return shortList;
-    } else {
-      return <VitalSign>[];
-    }
+  List<VitalSign> get bloodPressureRecords {
+    List<VitalSign> shortList = _allVitalSignsForPatient
+        .where((record) =>
+            record.category == 'BLOOD_PRESSURE' && record.isValid == true)
+        .toList();
+    //sort in date descending order
+    shortList.sort((a, b) {
+      return DateTime.parse(b.createdAt ?? '1971-01-01')
+          .compareTo(DateTime.parse(a.createdAt ?? '1971-01-01'));
+    });
+    return shortList;
   }
 
-  List<VitalSign> getBloodOxygenLevelRecordsForPatient(String id) {
-    if (_currentPatientId == id) {
-      List<VitalSign> shortList = _allVitalSignsForPatient
-          .where((record) =>
-              record.category == 'BLOOD_OXYGEN_LEVEL' && record.isValid == true)
-          .toList();
-      //sort in date descending order
-      shortList.sort((a, b) {
-        return DateTime.parse(b.createdAt ?? '1971-01-01')
-            .compareTo(DateTime.parse(a.createdAt ?? '1971-01-01'));
-      });
-      return shortList;
-    } else {
-      return <VitalSign>[];
-    }
+  List<VitalSign> get bloodOxygenLevelRecords {
+    List<VitalSign> shortList = _allVitalSignsForPatient
+        .where((record) =>
+            record.category == 'BLOOD_OXYGEN_LEVEL' && record.isValid == true)
+        .toList();
+    //sort in date descending order
+    shortList.sort((a, b) {
+      return DateTime.parse(b.createdAt ?? '1971-01-01')
+          .compareTo(DateTime.parse(a.createdAt ?? '1971-01-01'));
+    });
+    return shortList;
   }
 
-  List<VitalSign> getRespiratoryRateRecordsForPatient(String id) {
-    if (_currentPatientId == id) {
-      List<VitalSign> shortList = _allVitalSignsForPatient
-          .where((record) =>
-              record.category == 'RESPIRATORY_RATE' && record.isValid == true)
-          .toList();
-      //sort in date descending order
-      shortList.sort((a, b) {
-        return DateTime.parse(b.createdAt ?? '1971-01-01')
-            .compareTo(DateTime.parse(a.createdAt ?? '1971-01-01'));
-      });
-      return shortList;
-    } else {
-      return <VitalSign>[];
-    }
+  List<VitalSign> get respiratoryRateRecords {
+    List<VitalSign> shortList = _allVitalSignsForPatient
+        .where((record) =>
+            record.category == 'RESPIRATORY_RATE' && record.isValid == true)
+        .toList();
+    //sort in date descending order
+    shortList.sort((a, b) {
+      return DateTime.parse(b.createdAt ?? '1971-01-01')
+          .compareTo(DateTime.parse(a.createdAt ?? '1971-01-01'));
+    });
+    return shortList;
   }
 
-  List<VitalSign> getHeatBeatRateRecordsForPatient(String id) {
-    if (_currentPatientId == id) {
-      List<VitalSign> shortList = _allVitalSignsForPatient
-          .where((record) =>
-              record.category == 'HEARTBEAT_RATE' && record.isValid == true)
-          .toList();
-      //sort in date descending order
-      shortList.sort((a, b) {
-        return DateTime.parse(b.createdAt ?? '1971-01-01')
-            .compareTo(DateTime.parse(a.createdAt ?? '1971-01-01'));
-      });
-      return shortList;
-    } else {
-      return <VitalSign>[];
-    }
+  List<VitalSign> get heatBeatRateRecords {
+    List<VitalSign> shortList = _allVitalSignsForPatient
+        .where((record) =>
+            record.category == 'HEARTBEAT_RATE' && record.isValid == true)
+        .toList();
+    //sort in date descending order
+    shortList.sort((a, b) {
+      return DateTime.parse(b.createdAt ?? '1971-01-01')
+          .compareTo(DateTime.parse(a.createdAt ?? '1971-01-01'));
+    });
+    return shortList;
   }
 
   Future<void> fetchAllVitalSignsForPatient(String patientId) async {
     _currentPatientId = '';
     _allVitalSignsForPatient = [];
-    //final url = Uri.https('rest-clinicpro.onrender.com', '/patients');
-    final url = Uri.https('gp5.onrender.com', '/patients/$patientId/tests');
+    final url = Uri.https(HOST_URL, '/patients/$patientId/tests');
     try {
       final response = await http.get(url);
       switch (response.statusCode) {
@@ -106,14 +93,12 @@ class VitalSigns with ChangeNotifier {
             final List<VitalSign> loadedVitalSigns = [];
             if (extractedData != null) {
               extractedData.forEach((vitalSignData) {
-                //print(patientData);
                 loadedVitalSigns.add(VitalSign.fromJson(vitalSignData));
               });
             }
-            //print(_patients[0].id);
             _currentPatientId = patientId;
             _allVitalSignsForPatient = loadedVitalSigns;
-            notifyListeners();
+            //notifyListeners();
           }
           break;
         default:
@@ -178,9 +163,7 @@ class VitalSigns with ChangeNotifier {
   }
 
   Future<String?> getVitalSign(String entryPoint) async {
-    //const domain = 'rest-clinicpro.onrender.com';
-    const domain = 'gp5.onrender.com';
-    final url = Uri.https(domain, entryPoint);
+    final url = Uri.https(HOST_URL, entryPoint);
     String? result;
     try {
       //throw Exception("Unit test http fail");
@@ -205,5 +188,109 @@ class VitalSigns with ChangeNotifier {
       throw Exception(error);
     }
     return result;
+  }
+
+  Future<Patient> createVitalSign(
+      Patients patientsProvider, Patient myPatient, VitalSign vs) async {
+    var vsJson = vs.toJson();
+    vsJson.removeWhere((key, value) => value == null);
+    final url = Uri.https(HOST_URL, '/patients/${vs.patientId}/tests');
+    final response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(vsJson),
+    );
+
+    if (response.statusCode == 200) {
+      if (jsonDecode(response.body)['success'] == true) {
+        var newVs = VitalSign.fromJson(jsonDecode(response.body)['data']);
+        if (vs.patientId != _currentPatientId) {
+          _allVitalSignsForPatient = [];
+          _currentPatientId = vs.patientId!;
+        }
+        _allVitalSignsForPatient.add(newVs);
+        final newPatient =
+            updatePatientSummary(patientsProvider, myPatient, newVs);
+        notifyListeners();
+        return newPatient;
+      } else {
+        throw Exception(jsonDecode(response.body)['message']);
+      }
+    } else {
+      throw Exception(jsonDecode(response.body)['message']);
+    }
+  }
+
+  Future<Patient> updatePatientSummary(
+      Patients patientsProvider, Patient myPatient, VitalSign newVs) async {
+    var updatedPatient = Patient();
+    (myPatient.latestRecord != null)
+        ? updatedPatient.latestRecord = myPatient.latestRecord
+        : updatedPatient.latestRecord = LatestRecord();
+    // The backend does not allow empty attributes
+    if (updatedPatient.latestRecord!.bLOODPRESSURE == null) {
+      updatedPatient.latestRecord!.bLOODPRESSURE = 'null';
+    }
+    if (updatedPatient.latestRecord!.hEARTBEATRATE == null) {
+      updatedPatient.latestRecord!.hEARTBEATRATE = 'null';
+    }
+    if (updatedPatient.latestRecord!.rESPIRATORYRATE == null) {
+      updatedPatient.latestRecord!.rESPIRATORYRATE = 'null';
+    }
+    if (updatedPatient.latestRecord!.bLOODOXYGENLEVEL == null) {
+      updatedPatient.latestRecord!.bLOODOXYGENLEVEL = 'null';
+    }
+
+    if (newVs.category == TestCategory.BLOOD_PRESSURE.toShortString()) {
+      updatedPatient.latestRecord!.bLOODPRESSURE = newVs.id;
+    } else if (newVs.category == TestCategory.HEARTBEAT_RATE.toShortString()) {
+      updatedPatient.latestRecord!.hEARTBEATRATE = newVs.id;
+    } else if (newVs.category ==
+        TestCategory.RESPIRATORY_RATE.toShortString()) {
+      updatedPatient.latestRecord!.rESPIRATORYRATE = newVs.id;
+    } else if (newVs.category ==
+        TestCategory.BLOOD_OXYGEN_LEVEL.toShortString()) {
+      updatedPatient.latestRecord!.bLOODOXYGENLEVEL = newVs.id;
+    }
+    updatedPatient.id = myPatient.id;
+
+    return await patientsProvider.updatePatient(updatedPatient);
+  }
+
+  Future<VitalSign> updateVitalSigns(VitalSign updatedVs) async {
+    var updatedVsJson = updatedVs.toJson();
+    // remove fields as required by the backend
+    updatedVsJson.removeWhere((key, value) => value == null);
+    updatedVsJson.removeWhere((key, value) => key == 'isValid');
+
+    final url = Uri.https(
+        HOST_URL, '/patients/${updatedVs.patientId}/tests/${updatedVs.id}');
+    final response = await http.patch(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(updatedVsJson),
+    );
+
+    if (response.statusCode == 200) {
+      if (jsonDecode(response.body)['success'] == true) {
+        // update the current master list with the updated vs
+        var newVs = VitalSign.fromJson(jsonDecode(response.body)['data']);
+        final int index = _allVitalSignsForPatient
+            .indexWhere(((vs1) => vs1.id == updatedVs.id));
+        if (index != -1) {
+          _allVitalSignsForPatient[index] = newVs;
+        }
+        notifyListeners();
+        return newVs;
+      } else {
+        throw Exception(jsonDecode(response.body)['message']);
+      }
+    } else {
+      throw Exception(jsonDecode(response.body)['message']);
+    }
   }
 }
