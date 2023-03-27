@@ -145,7 +145,7 @@ class Patients with ChangeNotifier {
             uniqueTests,
             opUpperPressure,
             upperPressure,
-            true);
+            false);
       }
       if (opLowerPressure != FilterOp.nop) {
         patientLowerPressureMatched = _shortListReadings(
@@ -153,7 +153,7 @@ class Patients with ChangeNotifier {
             uniqueTests,
             opLowerPressure,
             lowerPressure,
-            false);
+            true);
       }
       //apply FilterOp for oxygen level per input parameters
       if (opOxygenLevel != FilterOp.nop) {
@@ -226,9 +226,9 @@ class Patients with ChangeNotifier {
       List<VitalSign> testRecords,
       FilterOp operator,
       int value,
-      bool isUpperValue) {
+      bool isLowerValue) {
     int index =
-        (isUpperValue) ? 1 : 0; // upper pressure has index 1, else has index 0
+        (isLowerValue) ? 1 : 0; // lower pressure has index 1, else has index 0
     Set<String> ids = {};
     switch (operator) {
       case FilterOp.greater:
