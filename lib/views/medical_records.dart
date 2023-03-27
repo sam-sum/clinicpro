@@ -391,6 +391,8 @@ class _MedicalRecordsState extends State<MedicalRecords>
     newRec.patientId = _patient.id;
     newRec.nurseName = _nurseName;
     newRec.modifyDate = DateTime.now().toString();
+    newRec.updatedAt = newRec.modifyDate;
+    newRec.createdAt = newRec.modifyDate;
     switch (_activeIndex) {
       case 0: //Blood Pressure
         newRec.category = TestCategory.BLOOD_PRESSURE.toShortString();
@@ -602,6 +604,8 @@ class _MedicalRecordsState extends State<MedicalRecords>
         _patient = await Provider.of<VitalSigns>(context, listen: false)
             .createVitalSign(_patientsProvider, _patient, record);
       } else {
+        record.modifyDate = DateTime.now().toString();
+        record.updatedAt = record.modifyDate;
         await Provider.of<VitalSigns>(context, listen: false)
             .updateVitalSigns(record);
       }

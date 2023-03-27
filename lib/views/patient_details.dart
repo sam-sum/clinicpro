@@ -6,7 +6,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:clinicpro/utilities/styles.dart';
 import 'package:clinicpro/models/patient_model.dart';
 import 'package:provider/provider.dart';
-import '../models/vital_sign_latest_model.dart';
 import '../providers/patients.dart';
 import '../widgets/simple_dialogue.dart';
 import '../widgets/stateless_button.dart';

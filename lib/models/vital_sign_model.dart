@@ -50,7 +50,8 @@ class VitalSign {
     data['category'] = category;
     data['readings'] = readings;
     data['isValid'] = isValid;
-
+    data['updatedAt'] = updatedAt;
+    data['createdAt'] = createdAt;
     return data;
   }
 }
