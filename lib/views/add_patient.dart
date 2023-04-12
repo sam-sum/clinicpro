@@ -255,66 +255,6 @@ class _AddPatientState extends State<AddPatient> {
                               }
                             }
                           }),
-                      // Row(
-                      //   children: <Widget>[
-                      //     new Flexible(
-                      //       child: new TextFormField(
-                      //         controller: _yearController,
-                      //         keyboardType: TextInputType.number,
-                      //         decoration: const InputDecoration(
-                      //           border: OutlineInputBorder(),
-                      //           labelText: 'YYYY',
-                      //           isDense: true,
-                      //           contentPadding: EdgeInsets.all(14),
-                      //         ),
-                      //         inputFormatters: [
-                      //           LengthLimitingTextInputFormatter(4),
-                      //           FilteringTextInputFormatter.allow(
-                      //               RegExp(r'[0-9]')),
-                      //         ],
-                      //         validator: checkEmptyValidator,
-                      //       ),
-                      //     ),
-                      //     SizedBox(width: getProrataHeight(15)),
-                      //     new Flexible(
-                      //       child: new TextFormField(
-                      //         controller: _monthController,
-                      //         keyboardType: TextInputType.number,
-                      //         decoration: const InputDecoration(
-                      //           border: OutlineInputBorder(),
-                      //           labelText: 'MM',
-                      //           isDense: true,
-                      //           contentPadding: EdgeInsets.all(14),
-                      //         ),
-                      //         inputFormatters: [
-                      //           LengthLimitingTextInputFormatter(2),
-                      //           FilteringTextInputFormatter.allow(
-                      //               RegExp(r'[0-9]')),
-                      //         ],
-                      //         validator: checkEmptyValidator,
-                      //       ),
-                      //     ),
-                      //     SizedBox(width: getProrataHeight(15)),
-                      //     new Flexible(
-                      //       child: new TextFormField(
-                      //         controller: _dayController,
-                      //         keyboardType: TextInputType.number,
-                      //         decoration: const InputDecoration(
-                      //           border: OutlineInputBorder(),
-                      //           labelText: 'DD',
-                      //           isDense: true,
-                      //           contentPadding: EdgeInsets.all(14),
-                      //         ),
-                      //         inputFormatters: [
-                      //           LengthLimitingTextInputFormatter(2),
-                      //           FilteringTextInputFormatter.allow(
-                      //               RegExp(r'[0-9]')),
-                      //         ],
-                      //         validator: checkEmptyValidator,
-                      //       ),
-                      //     ),
-                      //   ],
-                      // ),
                       SizedBox(height: getProrataHeight(15)),
                       TextFormField(
                         controller: _addressController,
